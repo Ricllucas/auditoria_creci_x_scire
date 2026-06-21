@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AuthPanel } from './components/auth/AuthPanel';
 import { CpfOverridesTable } from './components/CpfOverridesTable';
 import { Dashboard } from './components/Dashboard';
 import { FileSection } from './components/FileSection';
@@ -9,21 +8,11 @@ import { SavedAnalysesPanel } from './components/SavedAnalysesPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { DEFAULT_OVERRIDES, DEFAULT_SETTINGS, SECTION_DEFINITIONS, STORAGE_KEYS } from './constants';
 import {
-  deleteSavedAnalysis,
-  fetchCurrentUser,
-  listSavedAnalyses,
-  loadSavedAnalysis,
-  loginUser,
-  logoutUser,
-  registerUser,
-  saveAnalysisToApi,
-} from './services/api';
-import {
   AnalysisResult,
   AnalysisSettings,
   AnalysisSnapshot,
-  AppUser,
   CpfOverrideRule,
+  SavedAnalysisRecord,
   SavedAnalysisSummary,
   UploadFileItem,
   UploadSectionState,
@@ -89,6 +78,10 @@ function buildAnalysisSnapshot(
   };
 }
 
+function loadSavedAnalysisRecords(): SavedAnalysisRecord[] {
+  return safeJsonParse<SavedAnalysisRecord[]>(localStorage.getItem(STORAGE_KEYS.savedAnalyses), []);
+}
+
 export default function App() {
   const [sections, setSections] = useState<UploadSectionState[]>(createInitialSections);
   const [settings, setSettings] = useState<AnalysisSettings>(() =>
@@ -97,16 +90,12 @@ export default function App() {
   const [overrides, setOverrides] = useState<CpfOverrideRule[]>(() =>
     safeJsonParse(localStorage.getItem(STORAGE_KEYS.overrides), DEFAULT_OVERRIDES),
   );
+  const [savedAnalysisRecords, setSavedAnalysisRecords] = useState<SavedAnalysisRecord[]>(loadSavedAnalysisRecords);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeView, setActiveView] = useState<'import' | 'results' | 'report'>('import');
   const [statusMessage, setStatusMessage] = useState('Pronto para receber arquivos e iniciar uma nova análise.');
   const [staleResults, setStaleResults] = useState(false);
-  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
-  const [authResolved, setAuthResolved] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysisSummary[]>([]);
-  const [savedAnalysesLoading, setSavedAnalysesLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
@@ -117,44 +106,8 @@ export default function App() {
   }, [overrides]);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const user = await fetchCurrentUser();
-        setCurrentUser(user);
-      } catch (error) {
-        setStatusMessage(error instanceof Error ? error.message : 'Falha ao validar sessão.');
-      } finally {
-        setAuthResolved(true);
-      }
-    };
-
-    void initializeAuth();
-  }, []);
-
-  const refreshSavedAnalyses = async () => {
-    if (!currentUser) {
-      setSavedAnalyses([]);
-      return;
-    }
-
-    setSavedAnalysesLoading(true);
-    try {
-      const analyses = await listSavedAnalyses();
-      setSavedAnalyses(analyses);
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Falha ao carregar análises salvas.');
-    } finally {
-      setSavedAnalysesLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (currentUser) {
-      void refreshSavedAnalyses();
-    } else {
-      setSavedAnalyses([]);
-    }
-  }, [currentUser]);
+    localStorage.setItem(STORAGE_KEYS.savedAnalyses, JSON.stringify(savedAnalysisRecords));
+  }, [savedAnalysisRecords]);
 
   const sectionLookup = useMemo(
     () =>
@@ -165,6 +118,14 @@ export default function App() {
   );
 
   const hasFiles = sections.some((section) => section.files.length > 0);
+
+  const savedAnalyses = useMemo<SavedAnalysisSummary[]>(
+    () =>
+      savedAnalysisRecords.map(({ snapshot, ...summary }) => ({
+        ...summary,
+      })),
+    [savedAnalysisRecords],
+  );
 
   const updateSection = (
     sectionId: UploadSectionState['id'],
@@ -178,6 +139,11 @@ export default function App() {
       setStaleResults(true);
       setStatusMessage('Os arquivos foram alterados. Reprocesse a análise para atualizar os resultados.');
     }
+  };
+
+  const refreshSavedAnalyses = () => {
+    setSavedAnalysisRecords(loadSavedAnalysisRecords());
+    setStatusMessage('Histórico local atualizado a partir do navegador.');
   };
 
   const handleAddFiles = (
@@ -280,87 +246,69 @@ export default function App() {
     );
   };
 
-  const handlePersistAnalysis = async () => {
-    if (!result || !currentUser) {
+  const handlePersistAnalysis = () => {
+    if (!result) {
       return;
     }
 
     const snapshot = buildAnalysisSnapshot(result, settings, sections);
-    try {
-      await saveAnalysisToApi({
-        name: settings.analysisLabel || 'Auditoria CRECI/PR x SCIRE',
-        periodStart: settings.periodStart,
-        periodEnd: settings.periodEnd,
-        generatedAt: result.generatedAt,
-        totalDemands: result.dashboard.totalDemands,
-        billedValue: result.dashboard.billedValue,
-        technicalDueValue: result.dashboard.technicalDueValue,
-        glosableValue: result.dashboard.glosableValue,
-        snapshot,
-      });
-      await refreshSavedAnalyses();
-      setStatusMessage('Análise salva com sucesso no banco de dados.');
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Falha ao salvar análise no banco.');
-    }
+    const record: SavedAnalysisRecord = {
+      id: crypto.randomUUID(),
+      name: settings.analysisLabel || 'Auditoria CRECI/PR x SCIRE',
+      periodStart: settings.periodStart,
+      periodEnd: settings.periodEnd,
+      generatedAt: result.generatedAt,
+      createdAt: new Date().toISOString(),
+      totalDemands: result.dashboard.totalDemands,
+      billedValue: result.dashboard.billedValue,
+      technicalDueValue: result.dashboard.technicalDueValue,
+      glosableValue: result.dashboard.glosableValue,
+      snapshot,
+    };
+
+    setSavedAnalysisRecords((current) => [record, ...current]);
+    setStatusMessage('Análise salva com sucesso no navegador deste computador.');
   };
 
-  const handleOpenSavedAnalysis = async (id: string) => {
+  const handleOpenSavedAnalysis = (id: string) => {
+    const record = savedAnalysisRecords.find((item) => item.id === id);
+    if (!record) {
+      setStatusMessage('Não foi possível localizar a análise salva selecionada.');
+      return;
+    }
+
+    setResult(record.snapshot.result);
+    setSettings(record.snapshot.settings);
+    setActiveView('results');
+    setStaleResults(false);
+    setStatusMessage(`Análise histórica "${record.name}" carregada do navegador.`);
+  };
+
+  const handleDeleteSavedAnalysis = (id: string) => {
+    setSavedAnalysisRecords((current) => current.filter((item) => item.id !== id));
+    setStatusMessage('Análise excluída do histórico local deste navegador.');
+  };
+
+  const handleLoadSnapshotFile = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) {
+      return;
+    }
+
     try {
-      const record = await loadSavedAnalysis(id);
-      setResult(record.snapshot.result);
-      setSettings(record.snapshot.settings);
+      const rawContent = await file.text();
+      const snapshot = JSON.parse(rawContent) as AnalysisSnapshot;
+      if (!snapshot.result || !snapshot.settings) {
+        throw new Error('Arquivo de snapshot inválido.');
+      }
+
+      setResult(snapshot.result);
+      setSettings(snapshot.settings);
       setActiveView('results');
       setStaleResults(false);
-      setStatusMessage(`Análise histórica "${record.name}" carregada do banco de dados.`);
+      setStatusMessage(`Snapshot "${file.name}" carregado com sucesso.`);
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Falha ao abrir análise salva.');
-    }
-  };
-
-  const handleDeleteSavedAnalysis = async (id: string) => {
-    try {
-      await deleteSavedAnalysis(id);
-      await refreshSavedAnalyses();
-      setStatusMessage('Análise excluída do banco de dados.');
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Falha ao excluir análise.');
-    }
-  };
-
-  const handleLogin = async (credentials: { email: string; password: string }) => {
-    setAuthLoading(true);
-    try {
-      const user = await loginUser(credentials);
-      setCurrentUser(user);
-      setStatusMessage(`Sessão iniciada para ${user.name}.`);
-      return user;
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleRegister = async (payload: { name: string; email: string; password: string }) => {
-    setAuthLoading(true);
-    try {
-      const user = await registerUser(payload);
-      setCurrentUser(user);
-      setStatusMessage(`Conta criada com sucesso para ${user.name}.`);
-      return user;
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-    } finally {
-      setCurrentUser(null);
-      setResult(null);
-      setActiveView('import');
-      setSavedAnalyses([]);
-      setStatusMessage('Sessão encerrada.');
+      setStatusMessage(error instanceof Error ? error.message : 'Falha ao ler o snapshot informado.');
     }
   };
 
@@ -371,21 +319,6 @@ export default function App() {
 
     return result.processedFiles.flatMap((file) => file.warnings.map((warning) => `${file.fileName}: ${warning}`));
   }, [result]);
-
-  if (!authResolved) {
-    return (
-      <div className="auth-loading-shell">
-        <div className="panel-card auth-loading-card">
-          <h2>Inicializando ambiente seguro</h2>
-          <p>Validando sessão, banco de dados e serviços da aplicação...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return <AuthPanel onLogin={handleLogin} onRegister={handleRegister} loading={authLoading} />;
-  }
 
   return (
     <div className="app-shell">
@@ -401,11 +334,9 @@ export default function App() {
 
         <div className="hero__status">
           <div className="hero__status-card">
-            <span>Usuário autenticado</span>
-            <strong>{currentUser.name}</strong>
-            <small>
-              {currentUser.email} · perfil {currentUser.role}
-            </small>
+            <span>Modo de uso</span>
+            <strong>Uso individual sem login</strong>
+            <small>Versão 100% local para execução direta no navegador</small>
           </div>
           <div className="hero__status-card">
             <span>Status atual</span>
@@ -418,6 +349,11 @@ export default function App() {
           <div className="hero__status-card">
             <span>Valor/hora em uso</span>
             <strong>{formatCurrency(result?.settings.hourlyRate ?? settings.hourlyRate)}</strong>
+          </div>
+          <div className="hero__status-card">
+            <span>Histórico local</span>
+            <strong>{savedAnalysisRecords.length} análise(s) salva(s)</strong>
+            <small>Os dados ficam armazenados neste navegador</small>
           </div>
         </div>
       </header>
@@ -432,12 +368,24 @@ export default function App() {
         <button type="button" className="button" onClick={handleClearAll} disabled={isProcessing}>
           Limpar todos os arquivos
         </button>
-        <button type="button" className="button" onClick={() => void handlePersistAnalysis()} disabled={!result || savedAnalysesLoading}>
+        <button type="button" className="button" onClick={handlePersistAnalysis} disabled={!result}>
           Salvar análise
         </button>
         <button type="button" className="button" onClick={handleDownloadSnapshot} disabled={!result}>
           Baixar snapshot
         </button>
+        <label className="button button--success toolbar-upload">
+          Importar snapshot
+          <input
+            className="hidden-input"
+            type="file"
+            accept=".json"
+            onChange={(event) => {
+              void handleLoadSnapshotFile(event.target.files);
+              event.currentTarget.value = '';
+            }}
+          />
+        </label>
         <button type="button" className="button" onClick={() => result && exportAnalysisToExcel(result)} disabled={!result}>
           Exportar Excel
         </button>
@@ -450,9 +398,6 @@ export default function App() {
         <button type="button" className="button" onClick={() => setActiveView('import')}>
           Voltar à importação
         </button>
-        <button type="button" className="button button--danger" onClick={() => void handleLogout()}>
-          Sair
-        </button>
       </section>
 
       <section className="status-banner">
@@ -464,7 +409,7 @@ export default function App() {
         <div className="layout-main">
           <SavedAnalysesPanel
             analyses={savedAnalyses}
-            loading={savedAnalysesLoading}
+            loading={false}
             onRefresh={refreshSavedAnalyses}
             onOpen={handleOpenSavedAnalysis}
             onDelete={handleDeleteSavedAnalysis}
@@ -594,7 +539,7 @@ export default function App() {
                   <li>O sistema aceita múltiplos PDFs, XLS, XLSX e CSV em todas as bases operacionais.</li>
                   <li>Documentos DOCX contratuais também são lidos no navegador.</li>
                   <li>Arquivos DOC legados ficam registrados, mas exigem conversão para leitura completa.</li>
-                  <li>Agora as análises podem ser persistidas em banco de dados com login por usuário.</li>
+                  <li>As análises podem ser salvas localmente no navegador e exportadas como snapshot JSON.</li>
                 </ul>
               </div>
             )}

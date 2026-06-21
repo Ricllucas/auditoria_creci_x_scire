@@ -16,8 +16,8 @@ export function SavedAnalysesPanel(props: SavedAnalysesPanelProps) {
     <section className="panel-card">
       <div className="panel-card__header">
         <div>
-          <h2>Histórico salvo no banco de dados</h2>
-          <p>Consulte, reabra ou exclua análises persistidas para o usuário autenticado.</p>
+          <h2>Histórico salvo no navegador</h2>
+          <p>Consulte, reabra ou exclua análises armazenadas localmente neste computador e navegador.</p>
         </div>
         <button type="button" className="button" onClick={() => void onRefresh()} disabled={loading}>
           Atualizar lista
@@ -26,7 +26,7 @@ export function SavedAnalysesPanel(props: SavedAnalysesPanelProps) {
 
       {!analyses.length ? (
         <div className="empty-state">
-          <p>Nenhuma análise foi salva ainda para este usuário.</p>
+          <p>Nenhuma análise foi salva ainda neste navegador.</p>
         </div>
       ) : (
         <div className="saved-analysis-list">

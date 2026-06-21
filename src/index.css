@@ -110,6 +110,11 @@ button {
   margin-top: 24px;
 }
 
+.toolbar-upload {
+  position: relative;
+  overflow: hidden;
+}
+
 .button {
   border: none;
   border-radius: 14px;
@@ -534,94 +539,6 @@ button {
   gap: 10px;
 }
 
-.auth-loading-shell,
-.auth-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 28px;
-}
-
-.auth-loading-card {
-  max-width: 520px;
-  text-align: center;
-}
-
-.auth-shell {
-  grid-template-columns: minmax(320px, 620px) minmax(320px, 460px);
-  gap: 24px;
-  align-items: stretch;
-}
-
-.auth-hero,
-.auth-card {
-  padding: 28px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 16px 42px rgba(23, 39, 74, 0.12);
-}
-
-.auth-hero {
-  background: linear-gradient(135deg, #18345f 0%, #274c81 52%, #335e96 100%);
-  color: #f8fbff;
-}
-
-.auth-hero p,
-.auth-hero .side-list {
-  color: rgba(248, 251, 255, 0.9);
-}
-
-.auth-tabs {
-  display: inline-flex;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 14px;
-  background: #eaf0f9;
-}
-
-.auth-tab {
-  border: none;
-  border-radius: 10px;
-  padding: 10px 14px;
-  background: transparent;
-  color: #27456e;
-  font-weight: 600;
-}
-
-.auth-tab--active {
-  background: #1f4b99;
-  color: #fff;
-}
-
-.auth-form {
-  display: grid;
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.auth-form h2 {
-  margin: 0;
-  color: #18345f;
-}
-
-.auth-form p {
-  margin: 0;
-  color: #5b6a83;
-}
-
-.auth-error {
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #fde4e4;
-  color: #8e3f3f;
-  border: 1px solid #f2c4c4;
-}
-
-.auth-submit {
-  width: 100%;
-  margin-top: 6px;
-}
-
 @media (max-width: 1200px) {
   .layout-grid {
     grid-template-columns: 1fr;
@@ -629,10 +546,6 @@ button {
 
   .layout-side {
     position: static;
-  }
-
-  .auth-shell {
-    grid-template-columns: 1fr;
   }
 }
 

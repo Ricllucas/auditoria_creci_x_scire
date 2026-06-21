@@ -3,6 +3,7 @@ import { AnalysisSettings, CpfOverrideRule, UploadSectionDefinition } from './ty
 export const STORAGE_KEYS = {
   settings: 'creci-scire-settings',
   overrides: 'creci-scire-overrides',
+  savedAnalyses: 'creci-scire-saved-analyses',
 } as const;
 
 export const SECTION_DEFINITIONS: UploadSectionDefinition[] = [

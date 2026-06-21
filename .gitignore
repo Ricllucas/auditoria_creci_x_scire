@@ -1,6 +1,4 @@
 node_modules/
 dist/
 *.tsbuildinfo
-server-dist/
-data/
-.env
+.vercel/

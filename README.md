@@ -1,13 +1,18 @@
 # Auditoria CRECI/PR x SCIRE
 
-Aplicativo web full-stack para auditoria técnica, contratual, operacional e financeira de demandas entre CRECI/PR e SCIRE.
+Aplicativo web **100% frontend** para auditoria técnica, contratual, operacional e financeira de demandas entre CRECI/PR e SCIRE.
+
+## O que mudou nesta versão
+
+- sem login
+- sem backend
+- sem banco de dados no servidor
+- pronto para publicar no **Vercel grátis**
+- histórico salvo localmente no navegador
+- exportação de snapshot em `JSON` para backup e transporte entre máquinas
 
 ## Funcionalidades
 
-- Backend em `Express`
-- Login por e-mail e senha
-- Banco de dados local com `sql.js`
-- Histórico de análises salvo por usuário
 - Upload por quatro seções independentes
 - Leitura de `PDF`, `XLS`, `XLSX`, `CSV` e `DOCX`
 - Tabela editável de redefinições administrativas de CPF
@@ -19,14 +24,7 @@ Aplicativo web full-stack para auditoria técnica, contratual, operacional e fin
 - Relatório técnico consolidado
 - Exportação para `Excel`, `PDF` e snapshot `JSON`
 - Reprocessamento completo após troca de arquivos
-
-## Regras implementadas
-
-- Prevalência da base oficial do CRECI/PR para departamento
-- Aplicação prioritária das redefinições administrativas de CPF
-- Critério conservador para itens pendentes, mistos, duplicados ou sem comprovação
-- Separação entre obrigação contratual, melhoria evolutiva, caso misto, pendência e duplicidade
-- Uso do valor/hora contratual identificado nos documentos quando disponível
+- Histórico local salvo no navegador
 
 ## Como executar
 
@@ -35,196 +33,52 @@ npm install
 npm run dev
 ```
 
-Ambiente de desenvolvimento:
+Ambiente local:
 
-- frontend: `http://localhost:4173`
-- backend: `http://localhost:8787`
-
-O primeiro usuário cadastrado recebe perfil `admin`.
+- app: `http://localhost:4173`
 
 ## Build de produção
 
 ```bash
 npm run build
-npm run start
+npm run preview
 ```
 
-Artefatos gerados:
+Artefato final:
 
-- frontend: `dist/`
-- backend compilado: `server-dist/`
-- banco local: `data/app.db`
+- `dist/`
 
-## Usar em outro computador pela rede local
+## Publicar no Vercel
 
-Se os computadores estiverem na mesma rede:
-
-1. rode o app no computador principal:
-
-```bash
-npm install
-npm run dev
-```
-
-2. descubra o IP da máquina hospedeira;
-3. no outro computador, acesse:
-
-```text
-http://IP-DA-MAQUINA:4173
-```
-
-Exemplo:
-
-```text
-http://192.168.0.15:4173
-```
-
-Se quiser testar a versão de produção localmente:
-
-```bash
-npm run build
-npm run start
-```
-
-## Publicar na web
-
-Como agora existe backend e banco de dados, o projeto deve ser publicado em um ambiente Node.js, por exemplo:
-
-- VPS Linux/Windows
-- Render
-- Railway
-- Fly.io
-- servidor institucional com Node.js
-
-Parâmetros principais:
-
-- comando de build: `npm run build`
-- comando de start: `npm run start`
-- porta padrão da API/app: `8787`
-
-## Deploy pronto para produção
-
-Arquivos adicionados para deploy real:
-
-- `Dockerfile`
-- `render.yaml`
-- `.env.example`
-- `.dockerignore`
-
-## Variáveis de ambiente de produção
-
-Use estas variáveis:
-
-```bash
-NODE_ENV=production
-PORT=8787
-APP_JWT_SECRET=seu-segredo-forte
-APP_DATA_DIR=/var/data/creci-pr-scire
-APP_CORS_ORIGIN=
-APP_COOKIE_SAMESITE=lax
-```
-
-### Significado
-
-- `APP_JWT_SECRET`: obrigatório em produção
-- `APP_DATA_DIR`: diretório persistente do banco local
-- `APP_CORS_ORIGIN`: necessário apenas se frontend e backend ficarem em domínios diferentes
-- `APP_COOKIE_SAMESITE`: normalmente `lax`; use `none` somente em cenário cross-domain com HTTPS
-
-## Deploy na Render
-
-Este projeto já está preparado com `render.yaml`.
+Esse projeto está pronto para Vercel porque é um app estático em Vite.
 
 ### Passos
 
-1. envie o projeto para um repositório GitHub;
-2. entre na [Render](https://render.com);
-3. escolha **New +** → **Blueprint**;
-4. selecione o repositório;
-5. confirme a criação do serviço;
-6. após o deploy, abra a URL pública gerada pela Render.
+1. envie o projeto para o GitHub
+2. entre em [Vercel](https://vercel.com)
+3. clique em **Add New Project**
+4. importe o repositório
+5. confirme:
+   - **Framework Preset**: `Vite`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+6. publique
 
-### Observações da Render
+## Como os dados ficam salvos
 
-- o banco local fica salvo em disco persistente;
-- o frontend é servido pelo próprio backend Express;
-- a rota de saúde é `GET /api/health`.
+Nesta versão:
 
-## Deploy com Docker
+- os arquivos são processados no navegador
+- o histórico de análises fica salvo no **localStorage** do navegador
+- snapshots podem ser exportados em `JSON`
 
-Build da imagem:
+## Importante sobre histórico
 
-```bash
-docker build -t creci-pr-scire .
-```
+Como não há backend:
 
-Execução local:
-
-```bash
-docker run -d ^
-  -p 8787:8787 ^
-  -e NODE_ENV=production ^
-  -e APP_JWT_SECRET=troque-esta-chave ^
-  -e APP_DATA_DIR=/app/data ^
-  -v creci_scire_data:/app/data ^
-  --name creci-pr-scire ^
-  creci-pr-scire
-```
-
-Depois acesse:
-
-```text
-http://localhost:8787
-```
-
-## Deploy em VPS
-
-Em um servidor Linux com Node 22:
-
-```bash
-npm install
-npm run build
-APP_JWT_SECRET=seu-segredo NODE_ENV=production npm run start
-```
-
-Recomenda-se executar atrás de:
-
-- Nginx
-- Caddy
-- Traefik
-
-com HTTPS habilitado.
-
-## Estrutura full-stack incluída
-
-- `server/index.ts`: API HTTP e autenticação
-- `server/db.ts`: inicialização e persistência do banco
-- `server/repositories.ts`: acesso a usuários e análises
-- `src/services/api.ts`: cliente HTTP do frontend
-- `src/components/auth/AuthPanel.tsx`: tela de login/cadastro
-- `src/components/SavedAnalysesPanel.tsx`: histórico salvo
-
-## Segurança e persistência
-
-- Sessão baseada em cookie HTTP-only
-- Senhas com hash via `bcryptjs`
-- Token JWT para autenticação
-- Banco salvo localmente em `data/app.db`
-
-## Observação importante sobre privacidade
-
-O processamento principal dos arquivos continua ocorrendo no navegador do usuário. Nesta versão:
-
-- os arquivos são processados localmente no browser;
-- o backend é usado para autenticação e persistência;
-- as análises consolidadas podem ser salvas no banco sem depender de planilhas externas.
-
-## Próximas evoluções recomendadas
-
-- histórico de análises;
-- armazenamento centralizado de arquivos;
-- OCR de PDFs escaneados;
-- trilha de auditoria e perfis de acesso.
+- se você limpar os dados do navegador, o histórico local pode ser perdido
+- se trocar de computador, leve o snapshot `JSON`
+- para maior segurança, exporte snapshots das análises importantes
 
 ## Observações
 
