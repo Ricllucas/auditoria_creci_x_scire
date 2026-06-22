@@ -7,6 +7,23 @@ import { ParsedInputFile, ParsedInputRow, UploadFileItem, UploadSectionId } from
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
 
+type OcrRecognitionResult = {
+  data: {
+    text: string;
+  };
+};
+
+type OcrWorker = {
+  recognize: (image: HTMLCanvasElement) => Promise<OcrRecognitionResult>;
+};
+
+type TesseractModule = {
+  createWorker: (languages?: string) => Promise<OcrWorker>;
+};
+
+let ocrWorkerPromise: Promise<OcrWorker> | null = null;
+let ocrQueue: Promise<void> = Promise.resolve();
+
 function stringifyRowValue(value: unknown): string {
   if (value === null || value === undefined) {
     return '';
@@ -65,43 +82,46 @@ function parseCsv(text: string): ParsedInputRow[] {
   });
 }
 
-async function parsePdf(file: File): Promise<{ text: string; pageCount: number }> {
-  const buffer = await file.arrayBuffer();
-  const pdf = await getDocument({ data: buffer }).promise;
-  const pageTexts: string[] = [];
+function cleanPdfText(text: string): string {
+  return text
+    .replace(/\r/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
 
-  for (let index = 1; index <= pdf.numPages; index += 1) {
-    const page = await pdf.getPage(index);
-    const content = await page.getTextContent();
-    const lines: Array<{ y: number; items: Array<{ x: number; text: string }> }> = [];
+function extractTextFromPdfContent(content: { items: Array<{ str?: string; transform?: number[] }> }): string {
+  const lines: Array<{ y: number; items: Array<{ x: number; text: string }> }> = [];
 
-    content.items.forEach((item) => {
-      if (!('str' in item)) {
-        return;
-      }
+  content.items.forEach((item) => {
+    if (typeof item.str !== 'string') {
+      return;
+    }
 
-      const text = item.str.replace(/\s+/g, ' ').trim();
-      if (!text) {
-        return;
-      }
+    const text = item.str.replace(/\s+/g, ' ').trim();
+    if (!text) {
+      return;
+    }
 
-      const transform = 'transform' in item && Array.isArray(item.transform) ? item.transform : [];
-      const x = typeof transform[4] === 'number' ? transform[4] : 0;
-      const y = typeof transform[5] === 'number' ? transform[5] : 0;
-      const existingLine = lines.find((line) => Math.abs(line.y - y) <= 3);
+    const transform = Array.isArray(item.transform) ? item.transform : [];
+    const x = typeof transform[4] === 'number' ? transform[4] : 0;
+    const y = typeof transform[5] === 'number' ? transform[5] : 0;
+    const existingLine = lines.find((line) => Math.abs(line.y - y) <= 3);
 
-      if (existingLine) {
-        existingLine.items.push({ x, text });
-        return;
-      }
+    if (existingLine) {
+      existingLine.items.push({ x, text });
+      return;
+    }
 
-      lines.push({
-        y,
-        items: [{ x, text }],
-      });
+    lines.push({
+      y,
+      items: [{ x, text }],
     });
+  });
 
-    const text = lines
+  return cleanPdfText(
+    lines
       .sort((left, right) => right.y - left.y)
       .map((line) =>
         line.items
@@ -112,15 +132,125 @@ async function parsePdf(file: File): Promise<{ text: string; pageCount: number }
           .trim(),
       )
       .filter(Boolean)
-      .join('\n')
-      .trim();
+      .join('\n'),
+  );
+}
 
-    pageTexts.push(text);
+function shouldRunOcrOnText(text: string): boolean {
+  const normalized = cleanPdfText(text);
+  if (!normalized) {
+    return true;
+  }
+
+  const alphaNumericCount = normalized.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+  return alphaNumericCount < 40 || wordCount < 10;
+}
+
+async function getOcrWorker(): Promise<OcrWorker> {
+  if (!ocrWorkerPromise) {
+    ocrWorkerPromise = import('tesseract.js').then(async (tesseractModule) => {
+      const module = tesseractModule as unknown as TesseractModule;
+      return module.createWorker('por+eng');
+    });
+  }
+
+  return ocrWorkerPromise;
+}
+
+async function runQueuedOcr<T>(task: () => Promise<T>): Promise<T> {
+  const nextTask = ocrQueue.then(task, task);
+  ocrQueue = nextTask.then(
+    () => undefined,
+    () => undefined,
+  );
+  return nextTask;
+}
+
+async function renderPdfPageToCanvas(page: {
+  getViewport: (params: { scale: number }) => { width: number; height: number };
+  render: (params: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => {
+    promise: Promise<void>;
+  };
+}): Promise<HTMLCanvasElement> {
+  const viewport = page.getViewport({ scale: 2 });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Não foi possível preparar o canvas para OCR.');
+  }
+
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  await page.render({
+    canvasContext: context,
+    viewport,
+  }).promise;
+
+  return canvas;
+}
+
+async function runOcrOnPdfPage(page: {
+  getViewport: (params: { scale: number }) => { width: number; height: number };
+  render: (params: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => {
+    promise: Promise<void>;
+  };
+}): Promise<string> {
+  return runQueuedOcr(async () => {
+    const worker = await getOcrWorker();
+    const canvas = await renderPdfPageToCanvas(page);
+    const result = await worker.recognize(canvas);
+    return cleanPdfText(result.data.text);
+  });
+}
+
+async function parsePdf(file: File): Promise<{ text: string; pageCount: number; warnings: string[] }> {
+  const buffer = await file.arrayBuffer();
+  const pdf = await getDocument({ data: buffer }).promise;
+  const pageTexts: string[] = [];
+  let usedOcrPages = 0;
+  let failedOcrPages = 0;
+
+  for (let index = 1; index <= pdf.numPages; index += 1) {
+    const page = await pdf.getPage(index);
+    const content = await page.getTextContent();
+    const extractedText = extractTextFromPdfContent(content as { items: Array<{ str?: string; transform?: number[] }> });
+
+    if (!shouldRunOcrOnText(extractedText)) {
+      pageTexts.push(extractedText);
+      continue;
+    }
+
+    try {
+      const ocrText = await runOcrOnPdfPage(page as never);
+      if (ocrText) {
+        usedOcrPages += 1;
+        pageTexts.push(ocrText);
+        continue;
+      }
+    } catch {
+      failedOcrPages += 1;
+    }
+
+    pageTexts.push(extractedText);
+  }
+
+  const warnings: string[] = [];
+  if (usedOcrPages > 0) {
+    warnings.push(`OCR aplicado em ${usedOcrPages} página(s) com baixa extração textual.`);
+  }
+  if (failedOcrPages > 0) {
+    warnings.push(`OCR falhou em ${failedOcrPages} página(s); parte do conteúdo pode permanecer incompleta.`);
   }
 
   return {
-    text: pageTexts.join('\n\n'),
+    text: cleanPdfText(pageTexts.join('\n\n')),
     pageCount: pdf.numPages,
+    warnings,
   };
 }
 
@@ -210,7 +340,7 @@ export async function parseUploadedFiles(
         }
 
         if (documentType === 'pdf') {
-          const { text, pageCount } = await parsePdf(item.file);
+          const { text, pageCount, warnings: pdfWarnings } = await parsePdf(item.file);
           return {
             fileId: item.id,
             sectionId,
@@ -219,7 +349,7 @@ export async function parseUploadedFiles(
             importedAt: item.importedAt,
             documentType,
             status: 'parsed' as const,
-            warnings: text ? warnings : ['O PDF foi lido, mas não apresentou texto extraível.'],
+            warnings: text ? [...warnings, ...pdfWarnings] : [...pdfWarnings, 'O PDF foi lido, mas não apresentou texto extraível.'],
             textContent: text,
             rows: [],
             sheetNames: [],
