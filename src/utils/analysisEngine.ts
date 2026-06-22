@@ -1052,10 +1052,30 @@ function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
 
   return rows
     .map(({ row, fileName }) => {
-      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']);
-      const userName = firstFilled(row, ['usuario', 'usuário', 'nome', 'solicitante', 'colaborador']);
-      const department = firstFilled(row, ['departamento', 'depto', 'gerencia', 'gerência', 'lotacao', 'lotação', 'area']);
-      const sector = firstFilled(row, ['setor', 'secao', 'seção', 'subsetor']);
+      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc', 'cpf/cnpj']);
+      const userName = firstFilled(row, [
+        'usuario',
+        'usuário',
+        'nome',
+        'solicitante',
+        'colaborador',
+        'nome/razao social',
+        'nome/razão social',
+        'nome fantasia/npa',
+        'responsavel tecnico',
+        'responsável técnico',
+      ]);
+      const department = firstFilled(row, [
+        'departamento',
+        'depto',
+        'gerencia',
+        'gerência',
+        'lotacao',
+        'lotação',
+        'area',
+        'delegacia',
+      ]);
+      const sector = firstFilled(row, ['setor', 'secao', 'seção', 'subsetor', 'bairro', 'cidade']);
       const cpf = normalizeCpf(cpfRaw);
 
       if (!cpf && !userName && !department) {
@@ -1087,24 +1107,34 @@ function extractTickets(files: ParsedInputFile[], origin: TicketRecord['origin']
   return [...tabularRows, ...textRows]
     .map(({ row, sourceFile }) => {
       const rawText = rowToText(row);
-      const code = firstFilled(row, ['codigo', 'código', 'chamado', 'ticket', 'protocolo', 'id']) || extractCodeFromText(rawText);
-      const title = firstFilled(row, ['titulo', 'título', 'assunto', 'demanda', 'resumo']) || extractTitleFromText(rawText);
+      const code =
+        firstFilled(row, ['codigo', 'código', 'chamado', 'ticket', 'protocolo', 'id', 'suporte']) ||
+        extractCodeFromText(rawText);
+      const title =
+        firstFilled(row, ['titulo', 'título', 'assunto', 'demanda', 'resumo', 'descrição resumida']) ||
+        extractTitleFromText(rawText);
       const description =
-        firstFilled(row, ['descricao', 'descrição', 'detalhe', 'historico', 'histórico', 'texto']) ||
+        firstFilled(row, ['descricao', 'descrição', 'detalhe', 'historico', 'histórico', 'texto', 'descricao detalhada']) ||
         extractDescriptionFromText(rawText);
       const openedAt = parseDateValue(
-        firstFilled(row, ['data', 'abertura', 'criacao', 'criação', 'data abertura']) || extractDateFromText(rawText),
+        compactParts([
+          firstFilled(row, ['data', 'abertura', 'criacao', 'criação', 'data abertura']),
+          firstFilled(row, ['hora']),
+        ]) || extractDateFromText(rawText),
       );
-      const status = firstFilled(row, ['status', 'situação', 'situacao', 'estado']) || extractStatusFromText(rawText);
-      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']) || extractCpfFromText(rawText);
-      const userName = firstFilled(row, ['usuario', 'usuário', 'solicitante', 'nome']) || extractPersonFromText(rawText);
+      const status =
+        firstFilled(row, ['status', 'situação', 'situacao', 'estado', 'status do chamado', 'situação original']) ||
+        extractStatusFromText(rawText);
+      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc', 'cpf/cnpj']) || extractCpfFromText(rawText);
+      const userName =
+        firstFilled(row, ['usuario', 'usuário', 'solicitante', 'nome']) || extractPersonFromText(rawText);
       const department =
-        firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia']) ||
+        firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia', 'setor']) ||
         extractDepartmentFromText(rawText) ||
         inferDepartmentFromContext(`${sourceFile}\n${rawText}`);
       const sector = firstFilled(row, ['setor', 'secao', 'seção']) || extractSectorFromText(rawText);
       const minutes = parseMinutes(
-        firstFilled(row, ['minutos', 'tempo', 'tempo tecnico', 'tempo técnico', 'duracao', 'duração']) ||
+        firstFilled(row, ['minutos', 'tempo', 'tempo tecnico', 'tempo técnico', 'duracao', 'duração', 'tempo (min.)']) ||
           extractMinutesText(rawText),
         firstFilled(row, ['horas', 'tempo horas', 'tempo em horas']) || extractHoursText(rawText),
       );

@@ -56,39 +56,400 @@ function rowsToText(rows: ParsedInputRow[]): string {
     .join('\n');
 }
 
-function normalizeRows(rows: Record<string, unknown>[], sheetName?: string): ParsedInputRow[] {
-  return rows.map((row) => {
-    const normalized: ParsedInputRow = {};
-    Object.entries(row).forEach(([key, value]) => {
-      normalized[key.trim() || 'coluna'] = stringifyRowValue(value);
-    });
-    if (sheetName) {
-      normalized._planilha = sheetName;
+
+type MatrixRow = string[];
+
+type SpreadsheetTemplate = {
+  dataKinds: Array<'id' | 'text' | 'cpf' | 'date' | 'time' | 'number' | 'status' | 'optionalText' | 'optionalStatus'>;
+  headerKeywords: string[][];
+  headers: string[];
+  id: string;
+  minimumDataScore: number;
+  minimumHeaderScore: number;
+  sectionIds: UploadSectionId[];
+};
+
+type MatrixParseResult = {
+  rows: ParsedInputRow[];
+  warnings: string[];
+};
+
+const CALL_SECTION_IDS: UploadSectionId[] = ['creciCalls', 'scireCalls'];
+
+const SPREADSHEET_TEMPLATES: SpreadsheetTemplate[] = [
+  {
+    id: 'detailed_support_7',
+    sectionIds: CALL_SECTION_IDS,
+    headers: ['Suporte', 'Titulo', 'Descricao', 'Documento', 'Data', 'Hora', 'Tempo (Min.)'],
+    headerKeywords: [
+      ['suporte', 'codigo', 'código', 'chamado', 'ticket'],
+      ['titulo', 'título', 'assunto'],
+      ['descricao', 'descrição', 'detalhe', 'demanda'],
+      ['documento', 'cpf'],
+      ['data'],
+      ['hora'],
+      ['tempo', 'min'],
+    ],
+    dataKinds: ['id', 'text', 'text', 'cpf', 'date', 'time', 'number'],
+    minimumHeaderScore: 10,
+    minimumDataScore: 6,
+  },
+  {
+    id: 'support_with_user_7',
+    sectionIds: CALL_SECTION_IDS,
+    headers: ['Suporte', 'Título', 'Data', 'Hora', 'Usuário', 'Situação', 'Status'],
+    headerKeywords: [
+      ['suporte', 'codigo', 'código', 'chamado'],
+      ['titulo', 'título', 'assunto'],
+      ['data'],
+      ['hora'],
+      ['usuario', 'usuário', 'solicitante'],
+      ['situacao', 'situação'],
+      ['status'],
+    ],
+    dataKinds: ['id', 'text', 'date', 'time', 'optionalText', 'optionalStatus', 'status'],
+    minimumHeaderScore: 8,
+    minimumDataScore: 5,
+  },
+  {
+    id: 'support_with_department_6',
+    sectionIds: CALL_SECTION_IDS,
+    headers: ['Código', 'Título', 'Data', 'Hora', 'Status', 'Departamento'],
+    headerKeywords: [
+      ['codigo', 'código', 'suporte', 'chamado'],
+      ['titulo', 'título', 'assunto'],
+      ['data'],
+      ['hora'],
+      ['status', 'situacao', 'situação'],
+      ['departamento', 'setor'],
+    ],
+    dataKinds: ['id', 'text', 'date', 'time', 'status', 'optionalText'],
+    minimumHeaderScore: 8,
+    minimumDataScore: 5,
+  },
+  {
+    id: 'support_with_department_5',
+    sectionIds: CALL_SECTION_IDS,
+    headers: ['Suporte', 'Título', 'Data', 'Hora', 'Departamento'],
+    headerKeywords: [
+      ['suporte', 'codigo', 'código', 'chamado'],
+      ['titulo', 'título', 'assunto'],
+      ['data'],
+      ['hora'],
+      ['departamento', 'setor'],
+    ],
+    dataKinds: ['id', 'text', 'date', 'time', 'text'],
+    minimumHeaderScore: 7,
+    minimumDataScore: 4,
+  },
+  {
+    id: 'official_users_4',
+    sectionIds: ['userBase'],
+    headers: ['CPF', 'Usuário', 'Departamento', 'Setor'],
+    headerKeywords: [
+      ['cpf', 'documento', 'cpf/cnpj'],
+      ['usuario', 'usuário', 'nome'],
+      ['departamento', 'delegacia', 'lotacao', 'lotação'],
+      ['setor', 'subsetor'],
+    ],
+    dataKinds: ['cpf', 'text', 'text', 'optionalText'],
+    minimumHeaderScore: 6,
+    minimumDataScore: 3,
+  },
+];
+
+function normalizeKey(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function trimTrailingEmptyCells(row: MatrixRow): MatrixRow {
+  let end = row.length;
+  while (end > 0 && !row[end - 1]) {
+    end -= 1;
+  }
+  return row.slice(0, end);
+}
+
+function matrixFromUnknownRows(rows: unknown[][]): MatrixRow[] {
+  return rows
+    .map((row) => trimTrailingEmptyCells(row.map((value) => stringifyRowValue(value).replace(/\r/g, '\n').trim())))
+    .filter((row) => row.some(Boolean));
+}
+
+function isCpfLike(value: string): boolean {
+  return /\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/.test(value);
+}
+
+function isDateLike(value: string): boolean {
+  const trimmed = value.trim();
+  return (
+    /^\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+a\s+\d{1,2}\/\d{1,2}\/\d{2,4})?$/i.test(trimmed) ||
+    /^\d{1,2}\/\d{4}$/i.test(trimmed) ||
+    /^\d{4}-\d{2}-\d{2}/.test(trimmed)
+  );
+}
+
+function isTimeLike(value: string): boolean {
+  return /^\d{1,2}:\d{2}(?::\d{2})?$/.test(value.trim());
+}
+
+function isNumericLike(value: string): boolean {
+  const trimmed = value.trim();
+  return /^\d+(?:[.,]\d+)?$/.test(trimmed) || /^\d{1,3}(?:[.,]\d{3})+$/.test(trimmed);
+}
+
+function isStatusLike(value: string): boolean {
+  return /\b(aberto|aberta|encerrado|encerrada|fechado|fechada|cliente|suporte|pendente|concluido|concluído|em andamento)\b/i.test(
+    value,
+  );
+}
+
+function headerCellMatchesKeywords(value: string, keywords: string[]): boolean {
+  const normalized = normalizeKey(value);
+  return keywords.some((keyword) => normalized.includes(normalizeKey(keyword)));
+}
+
+function matchesDataKind(value: string, kind: SpreadsheetTemplate['dataKinds'][number]): boolean {
+  const trimmed = value.trim();
+
+  if (kind === 'optionalText' || kind === 'optionalStatus') {
+    if (!trimmed) {
+      return true;
     }
-    return normalized;
+    return matchesDataKind(trimmed, kind === 'optionalText' ? 'text' : 'status');
+  }
+
+  if (!trimmed) {
+    return false;
+  }
+
+  switch (kind) {
+    case 'cpf':
+      return isCpfLike(trimmed);
+    case 'date':
+      return isDateLike(trimmed);
+    case 'time':
+      return isTimeLike(trimmed);
+    case 'number':
+      return isNumericLike(trimmed);
+    case 'status':
+      return isStatusLike(trimmed) || trimmed.length <= 24;
+    case 'id':
+      return !isCpfLike(trimmed) && !isDateLike(trimmed) && !isTimeLike(trimmed) && trimmed.length <= 48;
+    case 'text':
+      return !isDateLike(trimmed) && !isTimeLike(trimmed) && trimmed.length >= 2;
+    default:
+      return false;
+  }
+}
+
+function scoreHeaderRow(row: MatrixRow, template: SpreadsheetTemplate): number {
+  let score = 0;
+  template.headers.forEach((_, index) => {
+    const cell = row[index] ?? '';
+    if (headerCellMatchesKeywords(cell, template.headerKeywords[index])) {
+      score += 3;
+      return;
+    }
+
+    if (!cell) {
+      return;
+    }
+
+    if (matchesDataKind(cell, template.dataKinds[index])) {
+      score -= 1;
+    }
+  });
+
+  if (Math.abs(row.length - template.headers.length) <= 1) {
+    score += 1;
+  }
+
+  return score;
+}
+
+function scoreDataRow(row: MatrixRow, template: SpreadsheetTemplate): number {
+  let score = 0;
+  template.dataKinds.forEach((kind, index) => {
+    const cell = row[index] ?? '';
+    if (matchesDataKind(cell, kind)) {
+      score += 1;
+    }
+  });
+  return score;
+}
+
+function findHeaderTemplate(matrix: MatrixRow[], sectionId: UploadSectionId):
+  | { rowIndex: number; score: number; template: SpreadsheetTemplate }
+  | null {
+  const templates = SPREADSHEET_TEMPLATES.filter((template) => template.sectionIds.includes(sectionId));
+  let bestMatch: { rowIndex: number; score: number; template: SpreadsheetTemplate } | null = null;
+
+  for (let rowIndex = 0; rowIndex < Math.min(matrix.length, 6); rowIndex += 1) {
+    templates.forEach((template) => {
+      const score = scoreHeaderRow(matrix[rowIndex], template);
+      if (score >= template.minimumHeaderScore && (!bestMatch || score > bestMatch.score)) {
+        bestMatch = { rowIndex, score, template };
+      }
+    });
+  }
+
+  return bestMatch;
+}
+
+function findDataTemplate(matrix: MatrixRow[], sectionId: UploadSectionId):
+  | { rowIndex: number; score: number; template: SpreadsheetTemplate }
+  | null {
+  const templates = SPREADSHEET_TEMPLATES.filter((template) => template.sectionIds.includes(sectionId));
+  let bestMatch: { rowIndex: number; score: number; template: SpreadsheetTemplate } | null = null;
+
+  for (let rowIndex = 0; rowIndex < Math.min(matrix.length, 4); rowIndex += 1) {
+    templates.forEach((template) => {
+      const score = scoreDataRow(matrix[rowIndex], template);
+      if (score >= template.minimumDataScore && (!bestMatch || score > bestMatch.score)) {
+        bestMatch = { rowIndex, score, template };
+      }
+    });
+  }
+
+  return bestMatch;
+}
+
+function createRowFromTemplate(row: MatrixRow, template: SpreadsheetTemplate, sheetName: string): ParsedInputRow {
+  const entry: ParsedInputRow = {};
+
+  template.headers.forEach((header, index) => {
+    entry[header] = row[index] ?? '';
+  });
+
+  row.slice(template.headers.length).forEach((value, index) => {
+    if (value) {
+      entry[`extra_${index + 1}`] = value;
+    }
+  });
+
+  entry._planilha = sheetName;
+  return entry;
+}
+
+function parseRowsByTemplate(
+  matrix: MatrixRow[],
+  template: SpreadsheetTemplate,
+  startRowIndex: number,
+  sheetName: string,
+): ParsedInputRow[] {
+  return matrix
+    .slice(startRowIndex)
+    .filter((row) => scoreDataRow(row, template) >= template.minimumDataScore)
+    .map((row) => createRowFromTemplate(row, template, sheetName));
+}
+
+function detectGenericHeaderRow(matrix: MatrixRow[]): number {
+  let bestIndex = 0;
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (let rowIndex = 0; rowIndex < Math.min(matrix.length, 6); rowIndex += 1) {
+    const row = matrix[rowIndex];
+    const nonEmpty = row.filter(Boolean);
+    const textual = nonEmpty.filter((cell) => !isDateLike(cell) && !isTimeLike(cell) && !isNumericLike(cell)).length;
+    const score = textual * 2 - (nonEmpty.length - textual);
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = rowIndex;
+    }
+  }
+
+  return bestIndex;
+}
+
+function buildGenericRows(matrix: MatrixRow[], sheetName: string): ParsedInputRow[] {
+  if (!matrix.length) {
+    return [];
+  }
+
+  const headerRowIndex = detectGenericHeaderRow(matrix);
+  const headerRow = matrix[headerRowIndex] ?? [];
+  const normalizedHeaders = headerRow.map((header, index) => {
+    const cleaned = header.trim();
+    return cleaned || `coluna_${index + 1}`;
+  });
+
+  return matrix.slice(headerRowIndex + 1).map((row) => {
+    const entry: ParsedInputRow = {};
+    normalizedHeaders.forEach((header, index) => {
+      entry[header] = row[index] ?? '';
+    });
+    entry._planilha = sheetName;
+    return entry;
   });
 }
 
-function parseCsv(text: string): ParsedInputRow[] {
+function isSummarySheet(sectionId: UploadSectionId, sheetName: string, matrix: MatrixRow[]): boolean {
+  if (!CALL_SECTION_IDS.includes(sectionId)) {
+    return false;
+  }
+
+  const normalizedName = normalizeKey(sheetName);
+  const firstRowText = normalizeKey((matrix[0] ?? []).join(' '));
+  return normalizedName.includes('resumo') || firstRowText.includes('resumo dos chamados');
+}
+
+function parseMatrixContent(matrix: MatrixRow[], sectionId: UploadSectionId, sheetName: string): MatrixParseResult {
+  if (!matrix.length) {
+    return { rows: [], warnings: [] };
+  }
+
+  if (isSummarySheet(sectionId, sheetName, matrix)) {
+    return {
+      rows: [],
+      warnings: [`Planilha "${sheetName}" ignorada por conter apenas resumo estatístico.`],
+    };
+  }
+
+  const dataTemplate = findDataTemplate(matrix, sectionId);
+  const headerTemplate = findHeaderTemplate(matrix, sectionId);
+
+  if (dataTemplate && (!headerTemplate || dataTemplate.score >= headerTemplate.score)) {
+    return {
+      rows: parseRowsByTemplate(matrix, dataTemplate.template, dataTemplate.rowIndex, sheetName),
+      warnings: [],
+    };
+  }
+
+  if (headerTemplate) {
+    return {
+      rows: parseRowsByTemplate(matrix, headerTemplate.template, headerTemplate.rowIndex + 1, sheetName),
+      warnings: [],
+    };
+  }
+
+  if (CALL_SECTION_IDS.includes(sectionId)) {
+    return {
+      rows: [],
+      warnings: [`Planilha "${sheetName}" ignorada porque o layout de chamados não foi reconhecido automaticamente.`],
+    };
+  }
+
+  return {
+    rows: buildGenericRows(matrix, sheetName),
+    warnings: [],
+  };
+}
+
+function parseCsv(text: string, sectionId: UploadSectionId, sheetName: string): MatrixParseResult {
   const parsed = Papa.parse<string[]>(text, {
     skipEmptyLines: true,
   });
 
-  const data = parsed.data;
-  if (!data.length) {
-    return [];
-  }
-
-  const [headerRow, ...bodyRows] = data;
-  const headers = headerRow.map((header, index) => header?.trim() || `coluna_${index + 1}`);
-
-  return bodyRows.map((row) => {
-    const entry: ParsedInputRow = {};
-    headers.forEach((header, index) => {
-      entry[header] = row[index]?.trim() ?? '';
-    });
-    return entry;
-  });
+  const matrix = matrixFromUnknownRows(parsed.data);
+  return parseMatrixContent(matrix, sectionId, sheetName);
 }
 
 function cleanPdfText(text: string): string {
@@ -279,23 +640,31 @@ async function parsePdf(
   };
 }
 
-async function parseSpreadsheet(file: File): Promise<{ rows: ParsedInputRow[]; sheetNames: string[] }> {
+async function parseSpreadsheet(file: File, sectionId: UploadSectionId): Promise<{ rows: ParsedInputRow[]; sheetNames: string[]; warnings: string[] }> {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: 'array' });
   const rows: ParsedInputRow[] = [];
+  const warnings: string[] = [];
 
   workbook.SheetNames.forEach((sheetName) => {
     const worksheet = workbook.Sheets[sheetName];
-    const sheetRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
-      defval: '',
-      raw: false,
-    });
-    rows.push(...normalizeRows(sheetRows, sheetName));
+    const matrix = matrixFromUnknownRows(
+      XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
+        header: 1,
+        defval: '',
+        raw: false,
+        blankrows: false,
+      }),
+    );
+    const parsedSheet = parseMatrixContent(matrix, sectionId, sheetName);
+    rows.push(...parsedSheet.rows);
+    warnings.push(...parsedSheet.warnings);
   });
 
   return {
     rows,
     sheetNames: workbook.SheetNames,
+    warnings,
   };
 }
 
@@ -332,7 +701,7 @@ export async function parseUploadedFiles(
       try {
         if (documentType === 'csv') {
           const text = await item.file.text();
-          const rows = parseCsv(text);
+          const parsedCsv = parseCsv(text, sectionId, 'CSV');
           return {
             fileId: item.id,
             sectionId,
@@ -341,15 +710,15 @@ export async function parseUploadedFiles(
             importedAt: item.importedAt,
             documentType,
             status: 'parsed' as const,
-            warnings,
-            textContent: [text, rowsToText(rows)].filter(Boolean).join('\n'),
-            rows,
+            warnings: [...warnings, ...parsedCsv.warnings],
+            textContent: [text, rowsToText(parsedCsv.rows)].filter(Boolean).join('\n'),
+            rows: parsedCsv.rows,
             sheetNames: [],
           };
         }
 
         if (documentType === 'spreadsheet') {
-          const { rows, sheetNames } = await parseSpreadsheet(item.file);
+          const { rows, sheetNames, warnings: spreadsheetWarnings } = await parseSpreadsheet(item.file, sectionId);
           return {
             fileId: item.id,
             sectionId,
@@ -358,7 +727,7 @@ export async function parseUploadedFiles(
             importedAt: item.importedAt,
             documentType,
             status: 'parsed' as const,
-            warnings,
+            warnings: [...warnings, ...spreadsheetWarnings],
             textContent: rowsToText(rows),
             rows,
             sheetNames,

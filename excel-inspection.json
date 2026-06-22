@@ -1,0 +1,2996 @@
+﻿[
+  {
+    "file": "C:/Users/ricll/Downloads/Base_Scire_melhorias .xlsx",
+    "sheets": [
+      {
+        "sheetName": "Table 1",
+        "ref": "A1:G170",
+        "topRows": [
+          [
+            "Suporte",
+            "Titulo",
+            "Descricao",
+            "Documento",
+            "Data",
+            "Hora",
+            "Tempo (Min.)"
+          ],
+          [
+            "5854",
+            "FICHA CADASTRAL",
+            "Gerar nova ficha cadastral numa solicitação já criada com dados\r\ncorrigidos e atualizados.",
+            "039.313.509-83",
+            "19/01/2026",
+            "10:11:07",
+            "180"
+          ],
+          [
+            "5857",
+            "EXCLUSÃO DE ANEXOS",
+            "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.",
+            "039.313.509-83",
+            "19/01/2026",
+            "10:18:25",
+            "120"
+          ],
+          [
+            "5862",
+            "REQUERIMENTOS",
+            "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo",
+            "033.630.109-07",
+            "19/01/2026",
+            "10:24:04",
+            "90"
+          ],
+          [
+            "5864",
+            "FICHA CADASTRAL SIMPLIFICADA",
+            "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail",
+            "039.313.509-83",
+            "19/01/2026",
+            "10:25:50",
+            "90"
+          ],
+          [
+            "5867",
+            "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO",
+            "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle",
+            "047.708.819-83",
+            "19/01/2026",
+            "11:09:02",
+            "300"
+          ],
+          [
+            "5870",
+            "SINCRONIZAÇÃO DO SCIRE COM O COFECI",
+            "Boa tarde.\r\nJean, gostaria de verificar como está esse caso..",
+            "047.708.819-83",
+            "19/01/2026",
+            "14:07:30",
+            "360"
+          ],
+          [
+            "5871",
+            "SOLICITACOES",
+            "A página de solicitações está atualmente limitada à visualização de apenas 200 processos. No entanto, é necessário que tenhamos acesso à totalidade dos processos protocolados, incluindo aqueles que se encontram em análise, pendentes, concluídos ou em qualquer outro status, a fim de garantir o correto acompanhamento das\r\ndemandas e a continuidade do trabalho.",
+            "033.630.109-07",
+            "19/01/2026",
+            "17:24:33",
+            "60"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Suporte",
+              "Titulo",
+              "Descricao",
+              "Documento",
+              "Data",
+              "Hora",
+              "Tempo (Min.)"
+            ],
+            "preview": [
+              {
+                "Suporte": "5854",
+                "Titulo": "FICHA CADASTRAL",
+                "Descricao": "Gerar nova ficha cadastral numa solicitação já criada com dados\r\ncorrigidos e atualizados.",
+                "Documento": "039.313.509-83",
+                "Data": "19/01/2026",
+                "Hora": "10:11:07",
+                "Tempo (Min.)": "180"
+              },
+              {
+                "Suporte": "5857",
+                "Titulo": "EXCLUSÃO DE ANEXOS",
+                "Descricao": "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.",
+                "Documento": "039.313.509-83",
+                "Data": "19/01/2026",
+                "Hora": "10:18:25",
+                "Tempo (Min.)": "120"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "5854",
+              "FICHA CADASTRAL",
+              "Gerar nova ficha cadastral numa solicitação já criada com dados\r\ncorrigidos e atualizados.",
+              "039.313.509-83",
+              "19/01/2026",
+              "10:11:07",
+              "180"
+            ],
+            "preview": [
+              {
+                "180": "120",
+                "5854": "5857",
+                "FICHA CADASTRAL": "EXCLUSÃO DE ANEXOS",
+                "Gerar nova ficha cadastral numa solicitação já criada com dados\r\ncorrigidos e atualizados.": "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.",
+                "039.313.509-83": "039.313.509-83",
+                "19/01/2026": "19/01/2026",
+                "10:11:07": "10:18:25"
+              },
+              {
+                "180": "90",
+                "5854": "5862",
+                "FICHA CADASTRAL": "REQUERIMENTOS",
+                "Gerar nova ficha cadastral numa solicitação já criada com dados\r\ncorrigidos e atualizados.": "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo",
+                "039.313.509-83": "033.630.109-07",
+                "19/01/2026": "19/01/2026",
+                "10:11:07": "10:24:04"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "5857",
+              "EXCLUSÃO DE ANEXOS",
+              "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.",
+              "039.313.509-83",
+              "19/01/2026",
+              "10:18:25",
+              "120"
+            ],
+            "preview": [
+              {
+                "120": "90",
+                "5857": "5862",
+                "EXCLUSÃO DE ANEXOS": "REQUERIMENTOS",
+                "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.": "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo",
+                "039.313.509-83": "033.630.109-07",
+                "19/01/2026": "19/01/2026",
+                "10:18:25": "10:24:04"
+              },
+              {
+                "120": "90",
+                "5857": "5864",
+                "EXCLUSÃO DE ANEXOS": "FICHA CADASTRAL SIMPLIFICADA",
+                "Implementar a função de \"exclusão\" de anexos nas solicitações\r\ndentro do cadastro do corretor.": "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail",
+                "039.313.509-83": "039.313.509-83",
+                "19/01/2026": "19/01/2026",
+                "10:18:25": "10:25:50"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "5862",
+              "REQUERIMENTOS",
+              "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo",
+              "033.630.109-07",
+              "19/01/2026",
+              "10:24:04",
+              "90"
+            ],
+            "preview": [
+              {
+                "90": "90",
+                "5862": "5864",
+                "REQUERIMENTOS": "FICHA CADASTRAL SIMPLIFICADA",
+                "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo": "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail",
+                "033.630.109-07": "039.313.509-83",
+                "19/01/2026": "19/01/2026",
+                "10:24:04": "10:25:50"
+              },
+              {
+                "90": "300",
+                "5862": "5867",
+                "REQUERIMENTOS": "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO",
+                "incluir no um campo para anexo de documentos  como existia antes do sistema entrar em operacao para anexo de certidoes e\r\ndocumentos vindos de fora do sistema e q nao tem protocolo": "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle",
+                "033.630.109-07": "047.708.819-83",
+                "19/01/2026": "19/01/2026",
+                "10:24:04": "11:09:02"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "5864",
+              "FICHA CADASTRAL SIMPLIFICADA",
+              "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail",
+              "039.313.509-83",
+              "19/01/2026",
+              "10:25:50",
+              "90"
+            ],
+            "preview": [
+              {
+                "90": "300",
+                "5864": "5867",
+                "FICHA CADASTRAL SIMPLIFICADA": "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO",
+                "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail": "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle",
+                "039.313.509-83": "047.708.819-83",
+                "19/01/2026": "19/01/2026",
+                "10:25:50": "11:09:02"
+              },
+              {
+                "90": "360",
+                "5864": "5870",
+                "FICHA CADASTRAL SIMPLIFICADA": "SINCRONIZAÇÃO DO SCIRE COM O COFECI",
+                "Gerar uma ficha simplificada para COAPIN apenas com os seguinte dados:\r\nNome, NPA, Identidade, Órgão Emissor, Data de Emissão; CPF, Estado Civil; Endereço Residencial, Endereço Comercial, telefone, E-\r\nmail": "Boa tarde.\r\nJean, gostaria de verificar como está esse caso..",
+                "039.313.509-83": "047.708.819-83",
+                "19/01/2026": "19/01/2026",
+                "10:25:50": "14:07:30"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "5867",
+              "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO",
+              "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle",
+              "047.708.819-83",
+              "19/01/2026",
+              "11:09:02",
+              "300"
+            ],
+            "preview": [
+              {
+                "300": "360",
+                "5867": "5870",
+                "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO": "SINCRONIZAÇÃO DO SCIRE COM O COFECI",
+                "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle": "Boa tarde.\r\nJean, gostaria de verificar como está esse caso..",
+                "047.708.819-83": "047.708.819-83",
+                "19/01/2026": "19/01/2026",
+                "11:09:02": "14:07:30"
+              },
+              {
+                "300": "60",
+                "5867": "5871",
+                "SINCRONIZAR O WEBSERVICE DO SCIRE COM O\r\nCRECI SÃO PAULO": "SOLICITACOES",
+                "Verificar sobre a sincronização do webservice com o Creci de Sp para\r\ncriação de e-mail creci.org e cursos do moodle": "A página de solicitações está atualmente limitada à visualização de apenas 200 processos. No entanto, é necessário que tenhamos acesso à totalidade dos processos protocolados, incluindo aqueles que se encontram em análise, pendentes, concluídos ou em qualquer outro status, a fim de garantir o correto acompanhamento das\r\ndemandas e a continuidade do trabalho.",
+                "047.708.819-83": "033.630.109-07",
+                "19/01/2026": "19/01/2026",
+                "11:09:02": "17:24:33"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Table 2",
+        "ref": "A1:G12",
+        "topRows": [
+          [
+            "6290",
+            "RELATÓRIO DE CONTROLE DE QUILOMETRAGEM DIÁRIA (MULTIUSUÁRIO POR VEÍCULO E POR DIA)  CATEGORIA: RELATÓRIOS / CONTROLE OPERACIONAL / MULTIUSUÁRIO",
+            "&#128204; Objetivo\r\nCriar um relatório mensal de controle de quilometragem por veículo, permitindo:\r\npreenchimento por múltiplos usuários inclusive mais de um usuário no mesmo dia\r\nconsolidação automática em um único relatório mensal por veículo &#128204; Problema\r\nAtualmente não há controle estruturado no sistema que permita: registro diário de quilometragem por veículo\r\ncompartilhamento do uso entre diferentes fiscais\r\nregistro de uso fracionado no mesmo dia por mais de um usuário Isso gera:\r\nperda de rastreabilidade\r\ncontroles paralelos (planilhas, papel) inconsistência nos dados de uso do veículo &#128204; Comportamento esperado &#128663; 1. Estrutura do relatório\r\nRelatório mensal por veículo contendo: placa\r\nidentificação do veículo\r\nmês/ano de referência",
+            "978.209.119-72",
+            "28/04/2026",
+            "15:41:05",
+            "360"
+          ],
+          [
+            "6291",
+            "RELATORIO",
+            "consegue converer em excel tb?",
+            "033.630.109-07",
+            "29/04/2026",
+            "8:50:17",
+            "120"
+          ],
+          [
+            "6284",
+            "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE",
+            "&#128204; Problema\r\nNo módulo Fiscalização, o usuário precisa navegar por diferentes menus para acessar funcionalidades utilizadas com frequência, como:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\nIsso gera perda de tempo e torna a navegação menos ágil durante o uso operacional do sistema.\r\n&#128204; Comportamento esperado\r\nImplementar botões flutuantes de acesso rápido na interface do Módulo Fiscalização, permitindo que o usuário seja direcionado diretamente para:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\n&#128204; Regras de funcionamento\r\nOs botões devem permanecer visíveis durante a navegação no módulo.\r\nDevem ter ícones e identificação clara.\r\nAo clicar, o sistema deve redirecionar imediatamente para a funcionalidade correspondente.\r\nA posição dos botões deve evitar sobreposição com outros elementos da tela.\r\nDevem funcionar corretamente em desktop e tablet.",
+            "978.209.119-72",
+            "28/04/2026",
+            "9:54:58",
+            "180"
+          ],
+          [
+            "Whatsapp",
+            "CRAÇÃO DE BOTÃO",
+            "Botão para inclusão manual de inscritos no módulo \"CURSOS E\r\nEVENTOS\"",
+            "033.630.109-07",
+            "27/04/2026",
+            "9:58:00",
+            "60"
+          ],
+          [
+            "Whatsapp",
+            "CRIACÃO DO MÓDULO JURÍDICO",
+            "",
+            "078.402.979-27",
+            "04/2026",
+            "",
+            "240"
+          ],
+          [
+            "Whatsapp",
+            "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO",
+            "",
+            "133.037.829-62",
+            "03/2026",
+            "",
+            "240"
+          ],
+          [
+            "Whatsapp",
+            "CRIAÇÃO DO MÓDULO BI",
+            "",
+            "030.779.289-73",
+            "03/2026",
+            "",
+            "240"
+          ],
+          [
+            "Whatsapp/PRESENCIAL",
+            "REFORMULAÇÃO DO MÓDULO DE\r\nFISCALIZAÇÃO",
+            "",
+            "978.209.119-72",
+            "12/2025 A 04/2026",
+            "",
+            "3,600"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "6290",
+              "RELATÓRIO DE CONTROLE DE QUILOMETRAGEM DIÁRIA (MULTIUSUÁRIO POR VEÍCULO E POR DIA)  CATEGORIA: RELATÓRIOS / CONTROLE OPERACIONAL / MULTIUSUÁRIO",
+              "&#128204; Objetivo\r\nCriar um relatório mensal de controle de quilometragem por veículo, permitindo:\r\npreenchimento por múltiplos usuários inclusive mais de um usuário no mesmo dia\r\nconsolidação automática em um único relatório mensal por veículo &#128204; Problema\r\nAtualmente não há controle estruturado no sistema que permita: registro diário de quilometragem por veículo\r\ncompartilhamento do uso entre diferentes fiscais\r\nregistro de uso fracionado no mesmo dia por mais de um usuário Isso gera:\r\nperda de rastreabilidade\r\ncontroles paralelos (planilhas, papel) inconsistência nos dados de uso do veículo &#128204; Comportamento esperado &#128663; 1. Estrutura do relatório\r\nRelatório mensal por veículo contendo: placa\r\nidentificação do veículo\r\nmês/ano de referência",
+              "978.209.119-72",
+              "28/04/2026",
+              "15:41:05",
+              "360"
+            ],
+            "preview": [
+              {
+                "360": "120",
+                "6290": "6291",
+                "RELATÓRIO DE CONTROLE DE QUILOMETRAGEM DIÁRIA (MULTIUSUÁRIO POR VEÍCULO E POR DIA)  CATEGORIA: RELATÓRIOS / CONTROLE OPERACIONAL / MULTIUSUÁRIO": "RELATORIO",
+                "&#128204; Objetivo\r\nCriar um relatório mensal de controle de quilometragem por veículo, permitindo:\r\npreenchimento por múltiplos usuários inclusive mais de um usuário no mesmo dia\r\nconsolidação automática em um único relatório mensal por veículo &#128204; Problema\r\nAtualmente não há controle estruturado no sistema que permita: registro diário de quilometragem por veículo\r\ncompartilhamento do uso entre diferentes fiscais\r\nregistro de uso fracionado no mesmo dia por mais de um usuário Isso gera:\r\nperda de rastreabilidade\r\ncontroles paralelos (planilhas, papel) inconsistência nos dados de uso do veículo &#128204; Comportamento esperado &#128663; 1. Estrutura do relatório\r\nRelatório mensal por veículo contendo: placa\r\nidentificação do veículo\r\nmês/ano de referência": "consegue converer em excel tb?",
+                "978.209.119-72": "033.630.109-07",
+                "28/04/2026": "29/04/2026",
+                "15:41:05": "8:50:17"
+              },
+              {
+                "360": "180",
+                "6290": "6284",
+                "RELATÓRIO DE CONTROLE DE QUILOMETRAGEM DIÁRIA (MULTIUSUÁRIO POR VEÍCULO E POR DIA)  CATEGORIA: RELATÓRIOS / CONTROLE OPERACIONAL / MULTIUSUÁRIO": "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE",
+                "&#128204; Objetivo\r\nCriar um relatório mensal de controle de quilometragem por veículo, permitindo:\r\npreenchimento por múltiplos usuários inclusive mais de um usuário no mesmo dia\r\nconsolidação automática em um único relatório mensal por veículo &#128204; Problema\r\nAtualmente não há controle estruturado no sistema que permita: registro diário de quilometragem por veículo\r\ncompartilhamento do uso entre diferentes fiscais\r\nregistro de uso fracionado no mesmo dia por mais de um usuário Isso gera:\r\nperda de rastreabilidade\r\ncontroles paralelos (planilhas, papel) inconsistência nos dados de uso do veículo &#128204; Comportamento esperado &#128663; 1. Estrutura do relatório\r\nRelatório mensal por veículo contendo: placa\r\nidentificação do veículo\r\nmês/ano de referência": "&#128204; Problema\r\nNo módulo Fiscalização, o usuário precisa navegar por diferentes menus para acessar funcionalidades utilizadas com frequência, como:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\nIsso gera perda de tempo e torna a navegação menos ágil durante o uso operacional do sistema.\r\n&#128204; Comportamento esperado\r\nImplementar botões flutuantes de acesso rápido na interface do Módulo Fiscalização, permitindo que o usuário seja direcionado diretamente para:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\n&#128204; Regras de funcionamento\r\nOs botões devem permanecer visíveis durante a navegação no módulo.\r\nDevem ter ícones e identificação clara.\r\nAo clicar, o sistema deve redirecionar imediatamente para a funcionalidade correspondente.\r\nA posição dos botões deve evitar sobreposição com outros elementos da tela.\r\nDevem funcionar corretamente em desktop e tablet.",
+                "978.209.119-72": "978.209.119-72",
+                "28/04/2026": "28/04/2026",
+                "15:41:05": "9:54:58"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6291",
+              "RELATORIO",
+              "consegue converer em excel tb?",
+              "033.630.109-07",
+              "29/04/2026",
+              "8:50:17",
+              "120"
+            ],
+            "preview": [
+              {
+                "120": "180",
+                "6291": "6284",
+                "RELATORIO": "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE",
+                "consegue converer em excel tb?": "&#128204; Problema\r\nNo módulo Fiscalização, o usuário precisa navegar por diferentes menus para acessar funcionalidades utilizadas com frequência, como:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\nIsso gera perda de tempo e torna a navegação menos ágil durante o uso operacional do sistema.\r\n&#128204; Comportamento esperado\r\nImplementar botões flutuantes de acesso rápido na interface do Módulo Fiscalização, permitindo que o usuário seja direcionado diretamente para:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\n&#128204; Regras de funcionamento\r\nOs botões devem permanecer visíveis durante a navegação no módulo.\r\nDevem ter ícones e identificação clara.\r\nAo clicar, o sistema deve redirecionar imediatamente para a funcionalidade correspondente.\r\nA posição dos botões deve evitar sobreposição com outros elementos da tela.\r\nDevem funcionar corretamente em desktop e tablet.",
+                "033.630.109-07": "978.209.119-72",
+                "29/04/2026": "28/04/2026",
+                "8:50:17": "9:54:58"
+              },
+              {
+                "120": "60",
+                "6291": "Whatsapp",
+                "RELATORIO": "CRAÇÃO DE BOTÃO",
+                "consegue converer em excel tb?": "Botão para inclusão manual de inscritos no módulo \"CURSOS E\r\nEVENTOS\"",
+                "033.630.109-07": "033.630.109-07",
+                "29/04/2026": "27/04/2026",
+                "8:50:17": "9:58:00"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6284",
+              "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE",
+              "&#128204; Problema\r\nNo módulo Fiscalização, o usuário precisa navegar por diferentes menus para acessar funcionalidades utilizadas com frequência, como:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\nIsso gera perda de tempo e torna a navegação menos ágil durante o uso operacional do sistema.\r\n&#128204; Comportamento esperado\r\nImplementar botões flutuantes de acesso rápido na interface do Módulo Fiscalização, permitindo que o usuário seja direcionado diretamente para:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\n&#128204; Regras de funcionamento\r\nOs botões devem permanecer visíveis durante a navegação no módulo.\r\nDevem ter ícones e identificação clara.\r\nAo clicar, o sistema deve redirecionar imediatamente para a funcionalidade correspondente.\r\nA posição dos botões deve evitar sobreposição com outros elementos da tela.\r\nDevem funcionar corretamente em desktop e tablet.",
+              "978.209.119-72",
+              "28/04/2026",
+              "9:54:58",
+              "180"
+            ],
+            "preview": [
+              {
+                "180": "60",
+                "6284": "Whatsapp",
+                "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE": "CRAÇÃO DE BOTÃO",
+                "&#128204; Problema\r\nNo módulo Fiscalização, o usuário precisa navegar por diferentes menus para acessar funcionalidades utilizadas com frequência, como:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\nIsso gera perda de tempo e torna a navegação menos ágil durante o uso operacional do sistema.\r\n&#128204; Comportamento esperado\r\nImplementar botões flutuantes de acesso rápido na interface do Módulo Fiscalização, permitindo que o usuário seja direcionado diretamente para:\r\nAções Fiscalizatórias Pesquisa de PF/PJ\r\n&#128204; Regras de funcionamento\r\nOs botões devem permanecer visíveis durante a navegação no módulo.\r\nDevem ter ícones e identificação clara.\r\nAo clicar, o sistema deve redirecionar imediatamente para a funcionalidade correspondente.\r\nA posição dos botões deve evitar sobreposição com outros elementos da tela.\r\nDevem funcionar corretamente em desktop e tablet.": "Botão para inclusão manual de inscritos no módulo \"CURSOS E\r\nEVENTOS\"",
+                "978.209.119-72": "033.630.109-07",
+                "28/04/2026": "27/04/2026",
+                "9:54:58": "9:58:00"
+              },
+              {
+                "180": "240",
+                "6284": "Whatsapp",
+                "INCLUSÃO DE BOTÕES FLUTUANTES DE ACESSO RÁPIDO NO MÓDULO FISCALIZAÇÃO CATEGORIA: USABILIDADE / NAVEGAÇÃO / INTERFACE": "CRIACÃO DO MÓDULO JURÍDICO",
+                "978.209.119-72": "078.402.979-27",
+                "28/04/2026": "04/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Whatsapp",
+              "CRAÇÃO DE BOTÃO",
+              "Botão para inclusão manual de inscritos no módulo \"CURSOS E\r\nEVENTOS\"",
+              "033.630.109-07",
+              "27/04/2026",
+              "9:58:00",
+              "60"
+            ],
+            "preview": [
+              {
+                "60": "240",
+                "Whatsapp": "Whatsapp",
+                "CRAÇÃO DE BOTÃO": "CRIACÃO DO MÓDULO JURÍDICO",
+                "033.630.109-07": "078.402.979-27",
+                "27/04/2026": "04/2026"
+              },
+              {
+                "60": "240",
+                "Whatsapp": "Whatsapp",
+                "CRAÇÃO DE BOTÃO": "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO",
+                "033.630.109-07": "133.037.829-62",
+                "27/04/2026": "03/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Whatsapp",
+              "CRIACÃO DO MÓDULO JURÍDICO",
+              "__empty_2",
+              "078.402.979-27",
+              "04/2026",
+              "__empty_5",
+              "240"
+            ],
+            "preview": [
+              {
+                "240": "240",
+                "Whatsapp": "Whatsapp",
+                "CRIACÃO DO MÓDULO JURÍDICO": "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO",
+                "078.402.979-27": "133.037.829-62",
+                "04/2026": "03/2026"
+              },
+              {
+                "240": "240",
+                "Whatsapp": "Whatsapp",
+                "CRIACÃO DO MÓDULO JURÍDICO": "CRIAÇÃO DO MÓDULO BI",
+                "078.402.979-27": "030.779.289-73",
+                "04/2026": "03/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "Whatsapp",
+              "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO",
+              "__empty_2",
+              "133.037.829-62",
+              "03/2026",
+              "__empty_5",
+              "240"
+            ],
+            "preview": [
+              {
+                "240": "240",
+                "Whatsapp": "Whatsapp",
+                "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO": "CRIAÇÃO DO MÓDULO BI",
+                "133.037.829-62": "030.779.289-73",
+                "03/2026": "03/2026"
+              },
+              {
+                "240": "3,600",
+                "Whatsapp": "Whatsapp/PRESENCIAL",
+                "CRIAÇÃO DO MÓDULO LICITAÇÃO/CONTRATO": "REFORMULAÇÃO DO MÓDULO DE\r\nFISCALIZAÇÃO",
+                "133.037.829-62": "978.209.119-72",
+                "03/2026": "12/2025 A 04/2026"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/chamados_sead.xlsx",
+    "sheets": [
+      {
+        "sheetName": "Chamados",
+        "ref": "A1:F210",
+        "topRows": [
+          [
+            "Código",
+            "Título",
+            "Data",
+            "Hora",
+            "Status",
+            "Departamento"
+          ],
+          [
+            "6354",
+            "RELATORIO",
+            "18/05/2026",
+            "09:36:39",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6346",
+            "URGENTE - CERTIFICADO DE INSCRICAO",
+            "14/05/2026",
+            "16:04:00",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6341",
+            "EMAIL -URGENTE",
+            "12/05/2026",
+            "17:20:20",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6340",
+            "RETORNO DE EMAIL",
+            "12/05/2026",
+            "17:19:56",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6323",
+            "AREA DO CORRETOR",
+            "07/05/2026",
+            "15:01:09",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6316",
+            "ATAS",
+            "05/05/2026",
+            "10:19:20",
+            "Encerrado",
+            "SEAD"
+          ],
+          [
+            "6312",
+            "RELATOR",
+            "04/05/2026",
+            "10:19:29",
+            "Encerrado",
+            "SEAD"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Código",
+              "Título",
+              "Data",
+              "Hora",
+              "Status",
+              "Departamento"
+            ],
+            "preview": [
+              {
+                "Código": "6354",
+                "Título": "RELATORIO",
+                "Data": "18/05/2026",
+                "Hora": "09:36:39",
+                "Status": "Encerrado",
+                "Departamento": "SEAD"
+              },
+              {
+                "Código": "6346",
+                "Título": "URGENTE - CERTIFICADO DE INSCRICAO",
+                "Data": "14/05/2026",
+                "Hora": "16:04:00",
+                "Status": "Encerrado",
+                "Departamento": "SEAD"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6354",
+              "RELATORIO",
+              "18/05/2026",
+              "09:36:39",
+              "Encerrado",
+              "SEAD"
+            ],
+            "preview": [
+              {
+                "6354": "6346",
+                "RELATORIO": "URGENTE - CERTIFICADO DE INSCRICAO",
+                "18/05/2026": "14/05/2026",
+                "09:36:39": "16:04:00",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              },
+              {
+                "6354": "6341",
+                "RELATORIO": "EMAIL -URGENTE",
+                "18/05/2026": "12/05/2026",
+                "09:36:39": "17:20:20",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6346",
+              "URGENTE - CERTIFICADO DE INSCRICAO",
+              "14/05/2026",
+              "16:04:00",
+              "Encerrado",
+              "SEAD"
+            ],
+            "preview": [
+              {
+                "6346": "6341",
+                "URGENTE - CERTIFICADO DE INSCRICAO": "EMAIL -URGENTE",
+                "14/05/2026": "12/05/2026",
+                "16:04:00": "17:20:20",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              },
+              {
+                "6346": "6340",
+                "URGENTE - CERTIFICADO DE INSCRICAO": "RETORNO DE EMAIL",
+                "14/05/2026": "12/05/2026",
+                "16:04:00": "17:19:56",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "6341",
+              "EMAIL -URGENTE",
+              "12/05/2026",
+              "17:20:20",
+              "Encerrado",
+              "SEAD"
+            ],
+            "preview": [
+              {
+                "6341": "6340",
+                "EMAIL -URGENTE": "RETORNO DE EMAIL",
+                "12/05/2026": "12/05/2026",
+                "17:20:20": "17:19:56",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              },
+              {
+                "6341": "6323",
+                "EMAIL -URGENTE": "AREA DO CORRETOR",
+                "12/05/2026": "07/05/2026",
+                "17:20:20": "15:01:09",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "6340",
+              "RETORNO DE EMAIL",
+              "12/05/2026",
+              "17:19:56",
+              "Encerrado",
+              "SEAD"
+            ],
+            "preview": [
+              {
+                "6340": "6323",
+                "RETORNO DE EMAIL": "AREA DO CORRETOR",
+                "12/05/2026": "07/05/2026",
+                "17:19:56": "15:01:09",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              },
+              {
+                "6340": "6316",
+                "RETORNO DE EMAIL": "ATAS",
+                "12/05/2026": "05/05/2026",
+                "17:19:56": "10:19:20",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "6323",
+              "AREA DO CORRETOR",
+              "07/05/2026",
+              "15:01:09",
+              "Encerrado",
+              "SEAD"
+            ],
+            "preview": [
+              {
+                "6323": "6316",
+                "AREA DO CORRETOR": "ATAS",
+                "07/05/2026": "05/05/2026",
+                "15:01:09": "10:19:20",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              },
+              {
+                "6323": "6312",
+                "AREA DO CORRETOR": "RELATOR",
+                "07/05/2026": "04/05/2026",
+                "15:01:09": "10:19:29",
+                "Encerrado": "Encerrado",
+                "SEAD": "SEAD"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Resumo",
+        "ref": "A1:C9",
+        "topRows": [
+          [
+            "Resumo dos Chamados - SEAD",
+            "",
+            ""
+          ],
+          [
+            "Indicador",
+            "Quantidade",
+            "Fórmula"
+          ],
+          [
+            "Total de chamados",
+            "209",
+            "209"
+          ],
+          [
+            "Encerrados",
+            "194",
+            "194"
+          ],
+          [
+            "Abertos/Pendentes",
+            "15",
+            "15"
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "Status",
+            "Quantidade",
+            ""
+          ],
+          [
+            "Encerrado",
+            "194",
+            "194"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Resumo dos Chamados - SEAD",
+              "__empty_1",
+              "__empty_2"
+            ],
+            "preview": [
+              {
+                "Resumo dos Chamados - SEAD": "Indicador",
+                "__empty_1": "Quantidade",
+                "__empty_2": "Fórmula"
+              },
+              {
+                "Resumo dos Chamados - SEAD": "Total de chamados",
+                "__empty_1": "209",
+                "__empty_2": "209"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Indicador",
+              "Quantidade",
+              "Fórmula"
+            ],
+            "preview": [
+              {
+                "Indicador": "Total de chamados",
+                "Quantidade": "209",
+                "Fórmula": "209"
+              },
+              {
+                "Indicador": "Encerrados",
+                "Quantidade": "194",
+                "Fórmula": "194"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "Total de chamados",
+              "209",
+              "209"
+            ],
+            "preview": [
+              {
+                "209": "194",
+                "Total de chamados": "Encerrados"
+              },
+              {
+                "209": "15",
+                "Total de chamados": "Abertos/Pendentes"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Encerrados",
+              "194",
+              "194"
+            ],
+            "preview": [
+              {
+                "194": "15",
+                "Encerrados": "Abertos/Pendentes"
+              },
+              {}
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Abertos/Pendentes",
+              "15",
+              "15"
+            ],
+            "preview": [
+              {},
+              {
+                "15": "Quantidade",
+                "Abertos/Pendentes": "Status"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "__empty_0",
+              "__empty_1",
+              "__empty_2"
+            ],
+            "preview": [
+              {
+                "__empty_0": "Status",
+                "__empty_1": "Quantidade"
+              },
+              {
+                "__empty_0": "Encerrado",
+                "__empty_1": "194",
+                "__empty_2": "194"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/chamados_suportes_fiscalizacao.xlsx",
+    "sheets": [
+      {
+        "sheetName": "Chamados",
+        "ref": "A1:G59",
+        "topRows": [
+          [
+            "suporte",
+            "Título",
+            "Data",
+            "Hora",
+            "Usuário",
+            "Situação",
+            "Status"
+          ],
+          [
+            "6406",
+            "FISC-72 — SEPARAÇÃO DOS PERCENTUAIS DE ALCANCE POR PESSOA FÍSICA (PF) E PESSOA JURÍDICA (PJ) NO RELATÓRIO GERENCIAL",
+            "6/4/26",
+            "11:07:43",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6397",
+            "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO",
+            "5/28/26",
+            "16:26:14",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6396",
+            "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA",
+            "5/28/26",
+            "16:07:16",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6395",
+            "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO",
+            "5/28/26",
+            "15:49:36",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6394",
+            "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA",
+            "5/28/26",
+            "15:47:20",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6393",
+            "DEVOLUÇÃO AUTOMÁTICA DA DEMANDA AO DESTINATÁRIO NO MÓDULO OUVIDORIA CATEGORIA: TRAMITAÇÃO / FLUXO",
+            "5/28/26",
+            "15:45:37",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6392",
+            "POSSIBILITAR INÍCIO DA AÇÃO FISCALIZATÓRIA DENTRO DA PRÓPRIA DENÚNCIA NO MÓDULO OUVIDORIA CATEGORIA: INTEGRAÇÃO OUVIDORIA/FISCALIZAÇÃO",
+            "5/28/26",
+            "15:10:56",
+            "RICARDO",
+            "SUPORTE",
+            "Aberto"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "suporte",
+              "Título",
+              "Data",
+              "Hora",
+              "Usuário",
+              "Situação",
+              "Status"
+            ],
+            "preview": [
+              {
+                "suporte": "6406",
+                "Título": "FISC-72 — SEPARAÇÃO DOS PERCENTUAIS DE ALCANCE POR PESSOA FÍSICA (PF) E PESSOA JURÍDICA (PJ) NO RELATÓRIO GERENCIAL",
+                "Data": "6/4/26",
+                "Hora": "11:07:43",
+                "Usuário": "RICARDO",
+                "Situação": "SUPORTE",
+                "Status": "Aberto"
+              },
+              {
+                "suporte": "6397",
+                "Título": "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO",
+                "Data": "5/28/26",
+                "Hora": "16:26:14",
+                "Usuário": "RICARDO",
+                "Situação": "SUPORTE",
+                "Status": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6406",
+              "FISC-72 — SEPARAÇÃO DOS PERCENTUAIS DE ALCANCE POR PESSOA FÍSICA (PF) E PESSOA JURÍDICA (PJ) NO RELATÓRIO GERENCIAL",
+              "6/4/26",
+              "11:07:43",
+              "RICARDO",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6406": "6397",
+                "FISC-72 — SEPARAÇÃO DOS PERCENTUAIS DE ALCANCE POR PESSOA FÍSICA (PF) E PESSOA JURÍDICA (PJ) NO RELATÓRIO GERENCIAL": "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO",
+                "6/4/26": "5/28/26",
+                "11:07:43": "16:26:14",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6406": "6396",
+                "FISC-72 — SEPARAÇÃO DOS PERCENTUAIS DE ALCANCE POR PESSOA FÍSICA (PF) E PESSOA JURÍDICA (PJ) NO RELATÓRIO GERENCIAL": "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA",
+                "6/4/26": "5/28/26",
+                "11:07:43": "16:07:16",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6397",
+              "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO",
+              "5/28/26",
+              "16:26:14",
+              "RICARDO",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6397": "6396",
+                "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO": "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA",
+                "5/28/26": "5/28/26",
+                "16:26:14": "16:07:16",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6397": "6395",
+                "SEPARAÇÃO DOS PERCENTUAIS DE RESULTADOS POR CIDADE NO RELATÓRIO GERENCIAL (PF E PJ) CATEGORIA: RELATÓRIOS GERENCIAIS / ESTATÍSTICA / FISCALIZAÇÃO": "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO",
+                "5/28/26": "5/28/26",
+                "16:26:14": "15:49:36",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "6396",
+              "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA",
+              "5/28/26",
+              "16:07:16",
+              "RICARDO",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6396": "6395",
+                "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA": "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO",
+                "5/28/26": "5/28/26",
+                "16:07:16": "15:49:36",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6396": "6394",
+                "INCLUSÃO DE COLUNA “CIDADE” NA PLATAFORMA DA OUVIDORIA": "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA",
+                "5/28/26": "5/28/26",
+                "16:07:16": "15:47:20",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "6395",
+              "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO",
+              "5/28/26",
+              "15:49:36",
+              "RICARDO",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6395": "6394",
+                "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO": "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA",
+                "5/28/26": "5/28/26",
+                "15:49:36": "15:47:20",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6395": "6393",
+                "INCLUSÃO E EDIÇÃO MANUAL DA CIDADE NA CAPA DAS DEMANDAS DO MÓDULO OUVIDORIA CATEGORIA: IMPRESSÃO / CAPA / ORGANIZAÇÃO": "DEVOLUÇÃO AUTOMÁTICA DA DEMANDA AO DESTINATÁRIO NO MÓDULO OUVIDORIA CATEGORIA: TRAMITAÇÃO / FLUXO",
+                "5/28/26": "5/28/26",
+                "15:49:36": "15:45:37",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "6394",
+              "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA",
+              "5/28/26",
+              "15:47:20",
+              "RICARDO",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6394": "6393",
+                "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA": "DEVOLUÇÃO AUTOMÁTICA DA DEMANDA AO DESTINATÁRIO NO MÓDULO OUVIDORIA CATEGORIA: TRAMITAÇÃO / FLUXO",
+                "5/28/26": "5/28/26",
+                "15:47:20": "15:45:37",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6394": "6392",
+                "INCLUSÃO DE CAMPO FLUTUANTE DE PESQUISA NA CAIXA DE MENSAGENS DO MÓDULO OUVIDORIA": "POSSIBILITAR INÍCIO DA AÇÃO FISCALIZATÓRIA DENTRO DA PRÓPRIA DENÚNCIA NO MÓDULO OUVIDORIA CATEGORIA: INTEGRAÇÃO OUVIDORIA/FISCALIZAÇÃO",
+                "5/28/26": "5/28/26",
+                "15:47:20": "15:10:56",
+                "RICARDO": "RICARDO",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Resumo",
+        "ref": "A1:E5",
+        "topRows": [
+          [
+            "Resumo dos Chamados - Fiscalização",
+            "",
+            "",
+            "Situação",
+            "Quantidade"
+          ],
+          [
+            "Total de chamados",
+            "58",
+            "",
+            "SUPORTE",
+            "12"
+          ],
+          [
+            "Em aberto",
+            "13",
+            "",
+            "CLIENTE",
+            "1"
+          ],
+          [
+            "Encerrados",
+            "45",
+            "",
+            "(sem informação no PDF)",
+            "45"
+          ],
+          [
+            "Arquivo de origem",
+            "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Resumo dos Chamados - Fiscalização",
+              "__empty_1",
+              "__empty_2",
+              "Situação",
+              "Quantidade"
+            ],
+            "preview": [
+              {
+                "Resumo dos Chamados - Fiscalização": "Total de chamados",
+                "__empty_1": "58",
+                "Situação": "SUPORTE",
+                "Quantidade": "12"
+              },
+              {
+                "Resumo dos Chamados - Fiscalização": "Em aberto",
+                "__empty_1": "13",
+                "Situação": "CLIENTE",
+                "Quantidade": "1"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Total de chamados",
+              "58",
+              "__empty_2",
+              "SUPORTE",
+              "12"
+            ],
+            "preview": [
+              {
+                "12": "1",
+                "58": "13",
+                "Total de chamados": "Em aberto",
+                "SUPORTE": "CLIENTE"
+              },
+              {
+                "12": "45",
+                "58": "45",
+                "Total de chamados": "Encerrados",
+                "SUPORTE": "(sem informação no PDF)"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "Em aberto",
+              "13",
+              "__empty_2",
+              "CLIENTE",
+              "1"
+            ],
+            "preview": [
+              {
+                "1": "45",
+                "13": "45",
+                "Em aberto": "Encerrados",
+                "CLIENTE": "(sem informação no PDF)"
+              },
+              {
+                "13": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Em aberto": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Encerrados",
+              "45",
+              "__empty_2",
+              "(sem informação no PDF)",
+              "45"
+            ],
+            "preview": [
+              {
+                "45": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Encerrados": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Arquivo de origem",
+              "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+              "__empty_2",
+              "__empty_3",
+              "__empty_4"
+            ],
+            "preview": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/chamados_suportes_processos_disciplinares.xlsx",
+    "sheets": [
+      {
+        "sheetName": "Chamados",
+        "ref": "A1:G127",
+        "topRows": [
+          [
+            "Suporte",
+            "Título",
+            "Data",
+            "Hora",
+            "Usuário",
+            "Situação original",
+            "Status do chamado"
+          ],
+          [
+            "6357",
+            "INFORMAÇÕES DE ORDEM EQUIVOCADA",
+            "5/18/26",
+            "10:56:09",
+            "ELISAMA",
+            "CLIENTE",
+            "Aberto"
+          ],
+          [
+            "6334",
+            "ARQUIVO DIGITAL - SEGUNDO PEDIDO",
+            "5/11/26",
+            "15:47:44",
+            "ELISAMA",
+            "CLIENTE",
+            "Aberto"
+          ],
+          [
+            "6308",
+            "OUVIDORIA",
+            "4/29/26",
+            "16:34:42",
+            "ELISAMA",
+            "CLIENTE",
+            "Aberto"
+          ],
+          [
+            "6238",
+            "ADD - DEMAIS OPÇÕES NO LAYOUT",
+            "4/15/26",
+            "21:49:22",
+            "ELISAMA",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6237",
+            "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO",
+            "4/15/26",
+            "21:44:30",
+            "ELISAMA",
+            "SUPORTE",
+            "Aberto"
+          ],
+          [
+            "6191",
+            "RELATÓRIOS",
+            "4/6/26",
+            "13:42:57",
+            "ELISAMA",
+            "CLIENTE",
+            "Aberto"
+          ],
+          [
+            "6190",
+            "AJUSTES NO SISTEMA - DENÚNCIAS E AUDIÊNCIAS",
+            "4/6/26",
+            "13:28:27",
+            "ELISAMA",
+            "CLIENTE",
+            "Aberto"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Suporte",
+              "Título",
+              "Data",
+              "Hora",
+              "Usuário",
+              "Situação original",
+              "Status do chamado"
+            ],
+            "preview": [
+              {
+                "Suporte": "6357",
+                "Título": "INFORMAÇÕES DE ORDEM EQUIVOCADA",
+                "Data": "5/18/26",
+                "Hora": "10:56:09",
+                "Usuário": "ELISAMA",
+                "Situação original": "CLIENTE",
+                "Status do chamado": "Aberto"
+              },
+              {
+                "Suporte": "6334",
+                "Título": "ARQUIVO DIGITAL - SEGUNDO PEDIDO",
+                "Data": "5/11/26",
+                "Hora": "15:47:44",
+                "Usuário": "ELISAMA",
+                "Situação original": "CLIENTE",
+                "Status do chamado": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6357",
+              "INFORMAÇÕES DE ORDEM EQUIVOCADA",
+              "5/18/26",
+              "10:56:09",
+              "ELISAMA",
+              "CLIENTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6357": "6334",
+                "INFORMAÇÕES DE ORDEM EQUIVOCADA": "ARQUIVO DIGITAL - SEGUNDO PEDIDO",
+                "5/18/26": "5/11/26",
+                "10:56:09": "15:47:44",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "CLIENTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6357": "6308",
+                "INFORMAÇÕES DE ORDEM EQUIVOCADA": "OUVIDORIA",
+                "5/18/26": "4/29/26",
+                "10:56:09": "16:34:42",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "CLIENTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6334",
+              "ARQUIVO DIGITAL - SEGUNDO PEDIDO",
+              "5/11/26",
+              "15:47:44",
+              "ELISAMA",
+              "CLIENTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6334": "6308",
+                "ARQUIVO DIGITAL - SEGUNDO PEDIDO": "OUVIDORIA",
+                "5/11/26": "4/29/26",
+                "15:47:44": "16:34:42",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "CLIENTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6334": "6238",
+                "ARQUIVO DIGITAL - SEGUNDO PEDIDO": "ADD - DEMAIS OPÇÕES NO LAYOUT",
+                "5/11/26": "4/15/26",
+                "15:47:44": "21:49:22",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "6308",
+              "OUVIDORIA",
+              "4/29/26",
+              "16:34:42",
+              "ELISAMA",
+              "CLIENTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6308": "6238",
+                "OUVIDORIA": "ADD - DEMAIS OPÇÕES NO LAYOUT",
+                "4/29/26": "4/15/26",
+                "16:34:42": "21:49:22",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6308": "6237",
+                "OUVIDORIA": "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO",
+                "4/29/26": "4/15/26",
+                "16:34:42": "21:44:30",
+                "ELISAMA": "ELISAMA",
+                "CLIENTE": "SUPORTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "6238",
+              "ADD - DEMAIS OPÇÕES NO LAYOUT",
+              "4/15/26",
+              "21:49:22",
+              "ELISAMA",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6238": "6237",
+                "ADD - DEMAIS OPÇÕES NO LAYOUT": "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO",
+                "4/15/26": "4/15/26",
+                "21:49:22": "21:44:30",
+                "ELISAMA": "ELISAMA",
+                "SUPORTE": "SUPORTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6238": "6191",
+                "ADD - DEMAIS OPÇÕES NO LAYOUT": "RELATÓRIOS",
+                "4/15/26": "4/6/26",
+                "21:49:22": "13:42:57",
+                "ELISAMA": "ELISAMA",
+                "SUPORTE": "CLIENTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "6237",
+              "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO",
+              "4/15/26",
+              "21:44:30",
+              "ELISAMA",
+              "SUPORTE",
+              "Aberto"
+            ],
+            "preview": [
+              {
+                "6237": "6191",
+                "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO": "RELATÓRIOS",
+                "4/15/26": "4/6/26",
+                "21:44:30": "13:42:57",
+                "ELISAMA": "ELISAMA",
+                "SUPORTE": "CLIENTE",
+                "Aberto": "Aberto"
+              },
+              {
+                "6237": "6190",
+                "DISTRIBUIÇÃO DOS PROCESSOS - SESSÕES DE JULGAMENTO": "AJUSTES NO SISTEMA - DENÚNCIAS E AUDIÊNCIAS",
+                "4/15/26": "4/6/26",
+                "21:44:30": "13:28:27",
+                "ELISAMA": "ELISAMA",
+                "SUPORTE": "CLIENTE",
+                "Aberto": "Aberto"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Resumo",
+        "ref": "A1:E5",
+        "topRows": [
+          [
+            "Resumo dos Chamados - Fiscalização",
+            "",
+            "",
+            "Situação",
+            "Quantidade"
+          ],
+          [
+            "Total de chamados",
+            "58",
+            "",
+            "SUPORTE",
+            "12"
+          ],
+          [
+            "Em aberto",
+            "13",
+            "",
+            "CLIENTE",
+            "1"
+          ],
+          [
+            "Encerrados",
+            "45",
+            "",
+            "(sem informação no PDF)",
+            "45"
+          ],
+          [
+            "Arquivo de origem",
+            "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Resumo dos Chamados - Fiscalização",
+              "__empty_1",
+              "__empty_2",
+              "Situação",
+              "Quantidade"
+            ],
+            "preview": [
+              {
+                "Resumo dos Chamados - Fiscalização": "Total de chamados",
+                "__empty_1": "58",
+                "Situação": "SUPORTE",
+                "Quantidade": "12"
+              },
+              {
+                "Resumo dos Chamados - Fiscalização": "Em aberto",
+                "__empty_1": "13",
+                "Situação": "CLIENTE",
+                "Quantidade": "1"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Total de chamados",
+              "58",
+              "__empty_2",
+              "SUPORTE",
+              "12"
+            ],
+            "preview": [
+              {
+                "12": "1",
+                "58": "13",
+                "Total de chamados": "Em aberto",
+                "SUPORTE": "CLIENTE"
+              },
+              {
+                "12": "45",
+                "58": "45",
+                "Total de chamados": "Encerrados",
+                "SUPORTE": "(sem informação no PDF)"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "Em aberto",
+              "13",
+              "__empty_2",
+              "CLIENTE",
+              "1"
+            ],
+            "preview": [
+              {
+                "1": "45",
+                "13": "45",
+                "Em aberto": "Encerrados",
+                "CLIENTE": "(sem informação no PDF)"
+              },
+              {
+                "13": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Em aberto": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Encerrados",
+              "45",
+              "__empty_2",
+              "(sem informação no PDF)",
+              "45"
+            ],
+            "preview": [
+              {
+                "45": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Encerrados": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Arquivo de origem",
+              "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+              "__empty_2",
+              "__empty_3",
+              "__empty_4"
+            ],
+            "preview": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/chamados_suportes_procuradoria_fiscal.xlsx",
+    "sheets": [
+      {
+        "sheetName": "Chamados",
+        "ref": "A1:E49",
+        "topRows": [
+          [
+            "SUPORTE",
+            "Título",
+            "Data",
+            "Hora",
+            "Departamento"
+          ],
+          [
+            "6378",
+            "COMPLEMENTO DE ENDEREÇO PARA PJ",
+            "5/21/26",
+            "15:56:23",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6376",
+            "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA",
+            "5/21/26",
+            "11:32:45",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6339",
+            "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO",
+            "5/12/26",
+            "15:01:08",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6336",
+            "FUNÇÃO ORGANIZAR FICHA FINANCEIRA",
+            "5/11/26",
+            "16:29:18",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6317",
+            "SEM RESPONSABILIDADE TÉCNICA",
+            "5/5/26",
+            "13:19:45",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6310",
+            "DADOS EM BRANCO",
+            "4/30/26",
+            "10:09:49",
+            "Procuradoria Fiscal"
+          ],
+          [
+            "6303",
+            "LANÇAMENTO DE NOTIFICAÇÃO DE D.A. (PJ)",
+            "4/29/26",
+            "14:02:04",
+            "Procuradoria Fiscal"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "SUPORTE",
+              "Título",
+              "Data",
+              "Hora",
+              "Departamento"
+            ],
+            "preview": [
+              {
+                "SUPORTE": "6378",
+                "Título": "COMPLEMENTO DE ENDEREÇO PARA PJ",
+                "Data": "5/21/26",
+                "Hora": "15:56:23",
+                "Departamento": "Procuradoria Fiscal"
+              },
+              {
+                "SUPORTE": "6376",
+                "Título": "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA",
+                "Data": "5/21/26",
+                "Hora": "11:32:45",
+                "Departamento": "Procuradoria Fiscal"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6378",
+              "COMPLEMENTO DE ENDEREÇO PARA PJ",
+              "5/21/26",
+              "15:56:23",
+              "Procuradoria Fiscal"
+            ],
+            "preview": [
+              {
+                "6378": "6376",
+                "COMPLEMENTO DE ENDEREÇO PARA PJ": "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA",
+                "5/21/26": "5/21/26",
+                "15:56:23": "11:32:45",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              },
+              {
+                "6378": "6339",
+                "COMPLEMENTO DE ENDEREÇO PARA PJ": "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO",
+                "5/21/26": "5/12/26",
+                "15:56:23": "15:01:08",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6376",
+              "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA",
+              "5/21/26",
+              "11:32:45",
+              "Procuradoria Fiscal"
+            ],
+            "preview": [
+              {
+                "6376": "6339",
+                "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA": "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO",
+                "5/21/26": "5/12/26",
+                "11:32:45": "15:01:08",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              },
+              {
+                "6376": "6336",
+                "ACESSOS ESPECIAIS - SENHA MASTER - OPÇÃO EXCLUIR LANÇAMENTO DUPLICADO E/OU PA": "FUNÇÃO ORGANIZAR FICHA FINANCEIRA",
+                "5/21/26": "5/11/26",
+                "11:32:45": "16:29:18",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "6339",
+              "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO",
+              "5/12/26",
+              "15:01:08",
+              "Procuradoria Fiscal"
+            ],
+            "preview": [
+              {
+                "6339": "6336",
+                "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO": "FUNÇÃO ORGANIZAR FICHA FINANCEIRA",
+                "5/12/26": "5/11/26",
+                "15:01:08": "16:29:18",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              },
+              {
+                "6339": "6317",
+                "CONSULTA DE REGISTRO - NECESSIDADE DE NOME FANTASIA - DATA DE INSCRIÇÃO": "SEM RESPONSABILIDADE TÉCNICA",
+                "5/12/26": "5/5/26",
+                "15:01:08": "13:19:45",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "6336",
+              "FUNÇÃO ORGANIZAR FICHA FINANCEIRA",
+              "5/11/26",
+              "16:29:18",
+              "Procuradoria Fiscal"
+            ],
+            "preview": [
+              {
+                "6336": "6317",
+                "FUNÇÃO ORGANIZAR FICHA FINANCEIRA": "SEM RESPONSABILIDADE TÉCNICA",
+                "5/11/26": "5/5/26",
+                "16:29:18": "13:19:45",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              },
+              {
+                "6336": "6310",
+                "FUNÇÃO ORGANIZAR FICHA FINANCEIRA": "DADOS EM BRANCO",
+                "5/11/26": "4/30/26",
+                "16:29:18": "10:09:49",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "6317",
+              "SEM RESPONSABILIDADE TÉCNICA",
+              "5/5/26",
+              "13:19:45",
+              "Procuradoria Fiscal"
+            ],
+            "preview": [
+              {
+                "6317": "6310",
+                "SEM RESPONSABILIDADE TÉCNICA": "DADOS EM BRANCO",
+                "5/5/26": "4/30/26",
+                "13:19:45": "10:09:49",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              },
+              {
+                "6317": "6303",
+                "SEM RESPONSABILIDADE TÉCNICA": "LANÇAMENTO DE NOTIFICAÇÃO DE D.A. (PJ)",
+                "5/5/26": "4/29/26",
+                "13:19:45": "14:02:04",
+                "Procuradoria Fiscal": "Procuradoria Fiscal"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Resumo",
+        "ref": "A1:E5",
+        "topRows": [
+          [
+            "Resumo",
+            "Valor",
+            "",
+            "Mês",
+            "Quantidade"
+          ],
+          [
+            "Departamento",
+            "Procuradoria Fiscal",
+            "",
+            "02/2026",
+            "20"
+          ],
+          [
+            "Total de chamados",
+            "48",
+            "",
+            "03/2026",
+            "3"
+          ],
+          [
+            "Primeira data",
+            "2/13/26",
+            "",
+            "04/2026",
+            "20"
+          ],
+          [
+            "Última data",
+            "5/21/26",
+            "",
+            "05/2026",
+            "5"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Resumo",
+              "Valor",
+              "__empty_2",
+              "Mês",
+              "Quantidade"
+            ],
+            "preview": [
+              {
+                "Resumo": "Departamento",
+                "Valor": "Procuradoria Fiscal",
+                "Mês": "02/2026",
+                "Quantidade": "20"
+              },
+              {
+                "Resumo": "Total de chamados",
+                "Valor": "48",
+                "Mês": "03/2026",
+                "Quantidade": "3"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Departamento",
+              "Procuradoria Fiscal",
+              "__empty_2",
+              "02/2026",
+              "20"
+            ],
+            "preview": [
+              {
+                "20": "3",
+                "Departamento": "Total de chamados",
+                "Procuradoria Fiscal": "48",
+                "02/2026": "03/2026"
+              },
+              {
+                "20": "20",
+                "Departamento": "Primeira data",
+                "Procuradoria Fiscal": "2/13/26",
+                "02/2026": "04/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "Total de chamados",
+              "48",
+              "__empty_2",
+              "03/2026",
+              "3"
+            ],
+            "preview": [
+              {
+                "3": "20",
+                "48": "2/13/26",
+                "Total de chamados": "Primeira data",
+                "03/2026": "04/2026"
+              },
+              {
+                "3": "5",
+                "48": "5/21/26",
+                "Total de chamados": "Última data",
+                "03/2026": "05/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Primeira data",
+              "2/13/26",
+              "__empty_2",
+              "04/2026",
+              "20"
+            ],
+            "preview": [
+              {
+                "20": "5",
+                "Primeira data": "Última data",
+                "2/13/26": "5/21/26",
+                "04/2026": "05/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Última data",
+              "5/21/26",
+              "__empty_2",
+              "05/2026",
+              "5"
+            ],
+            "preview": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/chamados_suportes_sead.xlsx",
+    "sheets": [
+      {
+        "sheetName": "Chamados",
+        "ref": "A1:G210",
+        "topRows": [
+          [
+            "SUPORTE",
+            "Título",
+            "18/05/2026",
+            "09:36:39",
+            "Usuário",
+            "Situação",
+            "Status"
+          ],
+          [
+            "6354",
+            "RELATORIO",
+            "5/14/26",
+            "16:04:00",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6346",
+            "URGENTE - CERTIFICADO DE INSCRICAO",
+            "5/12/26",
+            "17:20:20",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6341",
+            "EMAIL -URGENTE",
+            "5/12/26",
+            "17:19:56",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6340",
+            "RETORNO DE EMAIL",
+            "5/7/26",
+            "15:01:09",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6323",
+            "AREA DO CORRETOR",
+            "5/5/26",
+            "10:19:20",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6316",
+            "ATAS",
+            "5/4/26",
+            "10:19:29",
+            "",
+            "",
+            "Encerrado"
+          ],
+          [
+            "6312",
+            "RELATOR",
+            "4/28/26",
+            "16:01:18",
+            "",
+            "",
+            "Encerrado"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "SUPORTE",
+              "Título",
+              "18/05/2026",
+              "09:36:39",
+              "Usuário",
+              "Situação",
+              "Status"
+            ],
+            "preview": [
+              {
+                "SUPORTE": "6354",
+                "Título": "RELATORIO",
+                "18/05/2026": "5/14/26",
+                "09:36:39": "16:04:00",
+                "Status": "Encerrado"
+              },
+              {
+                "SUPORTE": "6346",
+                "Título": "URGENTE - CERTIFICADO DE INSCRICAO",
+                "18/05/2026": "5/12/26",
+                "09:36:39": "17:20:20",
+                "Status": "Encerrado"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "6354",
+              "RELATORIO",
+              "5/14/26",
+              "16:04:00",
+              "__empty_4",
+              "__empty_5",
+              "Encerrado"
+            ],
+            "preview": [
+              {
+                "6354": "6346",
+                "RELATORIO": "URGENTE - CERTIFICADO DE INSCRICAO",
+                "5/14/26": "5/12/26",
+                "16:04:00": "17:20:20",
+                "Encerrado": "Encerrado"
+              },
+              {
+                "6354": "6341",
+                "RELATORIO": "EMAIL -URGENTE",
+                "5/14/26": "5/12/26",
+                "16:04:00": "17:19:56",
+                "Encerrado": "Encerrado"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "6346",
+              "URGENTE - CERTIFICADO DE INSCRICAO",
+              "5/12/26",
+              "17:20:20",
+              "__empty_4",
+              "__empty_5",
+              "Encerrado"
+            ],
+            "preview": [
+              {
+                "6346": "6341",
+                "URGENTE - CERTIFICADO DE INSCRICAO": "EMAIL -URGENTE",
+                "5/12/26": "5/12/26",
+                "17:20:20": "17:19:56",
+                "Encerrado": "Encerrado"
+              },
+              {
+                "6346": "6340",
+                "URGENTE - CERTIFICADO DE INSCRICAO": "RETORNO DE EMAIL",
+                "5/12/26": "5/7/26",
+                "17:20:20": "15:01:09",
+                "Encerrado": "Encerrado"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "6341",
+              "EMAIL -URGENTE",
+              "5/12/26",
+              "17:19:56",
+              "__empty_4",
+              "__empty_5",
+              "Encerrado"
+            ],
+            "preview": [
+              {
+                "6341": "6340",
+                "EMAIL -URGENTE": "RETORNO DE EMAIL",
+                "5/12/26": "5/7/26",
+                "17:19:56": "15:01:09",
+                "Encerrado": "Encerrado"
+              },
+              {
+                "6341": "6323",
+                "EMAIL -URGENTE": "AREA DO CORRETOR",
+                "5/12/26": "5/5/26",
+                "17:19:56": "10:19:20",
+                "Encerrado": "Encerrado"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "6340",
+              "RETORNO DE EMAIL",
+              "5/7/26",
+              "15:01:09",
+              "__empty_4",
+              "__empty_5",
+              "Encerrado"
+            ],
+            "preview": [
+              {
+                "6340": "6323",
+                "RETORNO DE EMAIL": "AREA DO CORRETOR",
+                "5/7/26": "5/5/26",
+                "15:01:09": "10:19:20",
+                "Encerrado": "Encerrado"
+              },
+              {
+                "6340": "6316",
+                "RETORNO DE EMAIL": "ATAS",
+                "5/7/26": "5/4/26",
+                "15:01:09": "10:19:29",
+                "Encerrado": "Encerrado"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "6323",
+              "AREA DO CORRETOR",
+              "5/5/26",
+              "10:19:20",
+              "__empty_4",
+              "__empty_5",
+              "Encerrado"
+            ],
+            "preview": [
+              {
+                "6323": "6316",
+                "AREA DO CORRETOR": "ATAS",
+                "5/5/26": "5/4/26",
+                "10:19:20": "10:19:29",
+                "Encerrado": "Encerrado"
+              },
+              {
+                "6323": "6312",
+                "AREA DO CORRETOR": "RELATOR",
+                "5/5/26": "4/28/26",
+                "10:19:20": "16:01:18",
+                "Encerrado": "Encerrado"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "sheetName": "Resumo",
+        "ref": "A1:E5",
+        "topRows": [
+          [
+            "Resumo dos Chamados - Fiscalização",
+            "",
+            "",
+            "Situação",
+            "Quantidade"
+          ],
+          [
+            "Total de chamados",
+            "58",
+            "",
+            "SUPORTE",
+            "12"
+          ],
+          [
+            "Em aberto",
+            "13",
+            "",
+            "CLIENTE",
+            "1"
+          ],
+          [
+            "Encerrados",
+            "45",
+            "",
+            "(sem informação no PDF)",
+            "45"
+          ],
+          [
+            "Arquivo de origem",
+            "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Resumo dos Chamados - Fiscalização",
+              "__empty_1",
+              "__empty_2",
+              "Situação",
+              "Quantidade"
+            ],
+            "preview": [
+              {
+                "Resumo dos Chamados - Fiscalização": "Total de chamados",
+                "__empty_1": "58",
+                "Situação": "SUPORTE",
+                "Quantidade": "12"
+              },
+              {
+                "Resumo dos Chamados - Fiscalização": "Em aberto",
+                "__empty_1": "13",
+                "Situação": "CLIENTE",
+                "Quantidade": "1"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Total de chamados",
+              "58",
+              "__empty_2",
+              "SUPORTE",
+              "12"
+            ],
+            "preview": [
+              {
+                "12": "1",
+                "58": "13",
+                "Total de chamados": "Em aberto",
+                "SUPORTE": "CLIENTE"
+              },
+              {
+                "12": "45",
+                "58": "45",
+                "Total de chamados": "Encerrados",
+                "SUPORTE": "(sem informação no PDF)"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "Em aberto",
+              "13",
+              "__empty_2",
+              "CLIENTE",
+              "1"
+            ],
+            "preview": [
+              {
+                "1": "45",
+                "13": "45",
+                "Em aberto": "Encerrados",
+                "CLIENTE": "(sem informação no PDF)"
+              },
+              {
+                "13": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Em aberto": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "Encerrados",
+              "45",
+              "__empty_2",
+              "(sem informação no PDF)",
+              "45"
+            ],
+            "preview": [
+              {
+                "45": "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+                "Encerrados": "Arquivo de origem"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "Arquivo de origem",
+              "CHAMADOS_SUPORTES_FISCALIZAÇÃO (1).pdf",
+              "__empty_2",
+              "__empty_3",
+              "__empty_4"
+            ],
+            "preview": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/plano_acao.xls",
+    "sheets": [
+      {
+        "sheetName": "Sheet1",
+        "ref": "A1:A5",
+        "topRows": [
+          [
+            "Plano de A磯 Fiscal"
+          ],
+          [
+            "CONSELHO REGIONAL DE CORRETORES DE IMӖEIS - 6ʠREGIÏ"
+          ],
+          [
+            "APUCARANA"
+          ],
+          [
+            "15/06/2026 a 19/06/2026"
+          ],
+          [
+            "APUCARANA / PR"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "Plano de A磯 Fiscal"
+            ],
+            "preview": [
+              {
+                "Plano de A磯 Fiscal": "CONSELHO REGIONAL DE CORRETORES DE IMӖEIS - 6ʠREGIÏ"
+              },
+              {
+                "Plano de A磯 Fiscal": "APUCARANA"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "CONSELHO REGIONAL DE CORRETORES DE IMӖEIS - 6ʠREGIÏ"
+            ],
+            "preview": [
+              {
+                "CONSELHO REGIONAL DE CORRETORES DE IMӖEIS - 6ʠREGIÏ": "APUCARANA"
+              },
+              {
+                "CONSELHO REGIONAL DE CORRETORES DE IMӖEIS - 6ʠREGIÏ": "15/06/2026 a 19/06/2026"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "APUCARANA"
+            ],
+            "preview": [
+              {
+                "APUCARANA": "15/06/2026 a 19/06/2026"
+              },
+              {
+                "APUCARANA": "APUCARANA / PR"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "15/06/2026 a 19/06/2026"
+            ],
+            "preview": [
+              {
+                "15/06/2026 a 19/06/2026": "APUCARANA / PR"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "APUCARANA / PR"
+            ],
+            "preview": []
+          }
+        ]
+      },
+      {
+        "sheetName": "Sheet2",
+        "ref": "A1:G37",
+        "topRows": [
+          [
+            "FISCAL: RUVALDO FIDELIS DA SILVA",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "Registro",
+            "Pessoa F\udce9ca/Jur\ud929ca",
+            "Nome Fantasia / NPA",
+            "Endere篼/div>",
+            "Bairro",
+            "Cep",
+            "Responsᶥl T飮ico"
+          ],
+          [
+            "J9359",
+            "SGV IMӖEIS LTDA",
+            "SGV IMӖEIS",
+            "AVENIDA SOUZA NAVES,",
+            "BARRA FUNDA",
+            "86.800-570",
+            "STEFANO GABARDO F35929"
+          ],
+          [
+            "J8936",
+            "CANDIDO PORTINARI IMOVEIS LTDA",
+            "CANDIDO PORTINARI IMOVEIS",
+            "RUA TAMANDARɠ330,",
+            "BARRA FUNDA",
+            "86.800-210",
+            "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391"
+          ],
+          [
+            "J8225",
+            "G R RAFFEL ROSSO IMOVEIS",
+            "ROSSO IMOVEIS",
+            "AV. PEDRO SOCCOL,",
+            "CENGRO",
+            "",
+            "GRAZIELA ROSSO RAFFEL F27715"
+          ],
+          [
+            "J10856",
+            "CAMPOY CORRETORA DE IMӖEIS LTDA",
+            "CAMPOY CORRETORA",
+            "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330",
+            "CENTRO",
+            "86.800-022",
+            "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767"
+          ],
+          [
+            "J8249",
+            "H3G EMPREENDIMENTOS IMOBILIRIOS LTDA",
+            "H3G EMPREENDIMENTOS IMOBILIRIOS",
+            "AVENIDA CURITIBA, 1800,",
+            "CENTRO",
+            "86.800-702",
+            "ANGELITA RIBEIRO MENDONCA DE OLIVEIRA F35771"
+          ],
+          [
+            "J5429",
+            "CONSTRUTORA OTHON LTDA - ME",
+            "IMOBILIARIA / CONSTRUTORA OTHON",
+            "PRAǁ INTERVENTOR MANOEL RIBAS, 125 AP. 504,",
+            "CENTRO",
+            "86.800-680",
+            "JOSE ROBERTO LUCIANO F25174"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "FISCAL: RUVALDO FIDELIS DA SILVA",
+              "__empty_1",
+              "__empty_2",
+              "__empty_3",
+              "__empty_4",
+              "__empty_5",
+              "__empty_6"
+            ],
+            "preview": [
+              {
+                "FISCAL: RUVALDO FIDELIS DA SILVA": "Registro",
+                "__empty_1": "Pessoa F\udce9ca/Jur\ud929ca",
+                "__empty_2": "Nome Fantasia / NPA",
+                "__empty_3": "Endere篼/div>",
+                "__empty_4": "Bairro",
+                "__empty_5": "Cep",
+                "__empty_6": "Responsᶥl T飮ico"
+              },
+              {
+                "FISCAL: RUVALDO FIDELIS DA SILVA": "J9359",
+                "__empty_1": "SGV IMӖEIS LTDA",
+                "__empty_2": "SGV IMӖEIS",
+                "__empty_3": "AVENIDA SOUZA NAVES,",
+                "__empty_4": "BARRA FUNDA",
+                "__empty_5": "86.800-570",
+                "__empty_6": "STEFANO GABARDO F35929"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "Registro",
+              "Pessoa F\udce9ca/Jur\ud929ca",
+              "Nome Fantasia / NPA",
+              "Endere篼/div>",
+              "Bairro",
+              "Cep",
+              "Responsᶥl T飮ico"
+            ],
+            "preview": [
+              {
+                "Registro": "J9359",
+                "Pessoa F\udce9ca/Jur\ud929ca": "SGV IMӖEIS LTDA",
+                "Nome Fantasia / NPA": "SGV IMӖEIS",
+                "Endere篼/div>": "AVENIDA SOUZA NAVES,",
+                "Bairro": "BARRA FUNDA",
+                "Cep": "86.800-570",
+                "Responsᶥl T飮ico": "STEFANO GABARDO F35929"
+              },
+              {
+                "Registro": "J8936",
+                "Pessoa F\udce9ca/Jur\ud929ca": "CANDIDO PORTINARI IMOVEIS LTDA",
+                "Nome Fantasia / NPA": "CANDIDO PORTINARI IMOVEIS",
+                "Endere篼/div>": "RUA TAMANDARɠ330,",
+                "Bairro": "BARRA FUNDA",
+                "Cep": "86.800-210",
+                "Responsᶥl T飮ico": "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391"
+              }
+            ]
+          },
+          {
+            "headerRow": 2,
+            "columns": [
+              "J9359",
+              "SGV IMӖEIS LTDA",
+              "SGV IMӖEIS",
+              "AVENIDA SOUZA NAVES,",
+              "BARRA FUNDA",
+              "86.800-570",
+              "STEFANO GABARDO F35929"
+            ],
+            "preview": [
+              {
+                "J9359": "J8936",
+                "SGV IMӖEIS LTDA": "CANDIDO PORTINARI IMOVEIS LTDA",
+                "SGV IMӖEIS": "CANDIDO PORTINARI IMOVEIS",
+                "AVENIDA SOUZA NAVES,": "RUA TAMANDARɠ330,",
+                "BARRA FUNDA": "BARRA FUNDA",
+                "86.800-570": "86.800-210",
+                "STEFANO GABARDO F35929": "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391"
+              },
+              {
+                "J9359": "J8225",
+                "SGV IMӖEIS LTDA": "G R RAFFEL ROSSO IMOVEIS",
+                "SGV IMӖEIS": "ROSSO IMOVEIS",
+                "AVENIDA SOUZA NAVES,": "AV. PEDRO SOCCOL,",
+                "BARRA FUNDA": "CENGRO",
+                "STEFANO GABARDO F35929": "GRAZIELA ROSSO RAFFEL F27715"
+              }
+            ]
+          },
+          {
+            "headerRow": 3,
+            "columns": [
+              "J8936",
+              "CANDIDO PORTINARI IMOVEIS LTDA",
+              "CANDIDO PORTINARI IMOVEIS",
+              "RUA TAMANDARɠ330,",
+              "BARRA FUNDA",
+              "86.800-210",
+              "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391"
+            ],
+            "preview": [
+              {
+                "J8936": "J8225",
+                "CANDIDO PORTINARI IMOVEIS LTDA": "G R RAFFEL ROSSO IMOVEIS",
+                "CANDIDO PORTINARI IMOVEIS": "ROSSO IMOVEIS",
+                "RUA TAMANDARɠ330,": "AV. PEDRO SOCCOL,",
+                "BARRA FUNDA": "CENGRO",
+                "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391": "GRAZIELA ROSSO RAFFEL F27715"
+              },
+              {
+                "J8936": "J10856",
+                "CANDIDO PORTINARI IMOVEIS LTDA": "CAMPOY CORRETORA DE IMӖEIS LTDA",
+                "CANDIDO PORTINARI IMOVEIS": "CAMPOY CORRETORA",
+                "RUA TAMANDARɠ330,": "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330",
+                "BARRA FUNDA": "CENTRO",
+                "86.800-210": "86.800-022",
+                "TIAGO TEJADA GARCIA PEREIRA DE SOUZA F37391": "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767"
+              }
+            ]
+          },
+          {
+            "headerRow": 4,
+            "columns": [
+              "J8225",
+              "G R RAFFEL ROSSO IMOVEIS",
+              "ROSSO IMOVEIS",
+              "AV. PEDRO SOCCOL,",
+              "CENGRO",
+              "__empty_5",
+              "GRAZIELA ROSSO RAFFEL F27715"
+            ],
+            "preview": [
+              {
+                "J8225": "J10856",
+                "G R RAFFEL ROSSO IMOVEIS": "CAMPOY CORRETORA DE IMӖEIS LTDA",
+                "ROSSO IMOVEIS": "CAMPOY CORRETORA",
+                "AV. PEDRO SOCCOL,": "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330",
+                "CENGRO": "CENTRO",
+                "__empty_5": "86.800-022",
+                "GRAZIELA ROSSO RAFFEL F27715": "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767"
+              },
+              {
+                "J8225": "J8249",
+                "G R RAFFEL ROSSO IMOVEIS": "H3G EMPREENDIMENTOS IMOBILIRIOS LTDA",
+                "ROSSO IMOVEIS": "H3G EMPREENDIMENTOS IMOBILIRIOS",
+                "AV. PEDRO SOCCOL,": "AVENIDA CURITIBA, 1800,",
+                "CENGRO": "CENTRO",
+                "__empty_5": "86.800-702",
+                "GRAZIELA ROSSO RAFFEL F27715": "ANGELITA RIBEIRO MENDONCA DE OLIVEIRA F35771"
+              }
+            ]
+          },
+          {
+            "headerRow": 5,
+            "columns": [
+              "J10856",
+              "CAMPOY CORRETORA DE IMӖEIS LTDA",
+              "CAMPOY CORRETORA",
+              "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330",
+              "CENTRO",
+              "86.800-022",
+              "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767"
+            ],
+            "preview": [
+              {
+                "J10856": "J8249",
+                "CAMPOY CORRETORA DE IMӖEIS LTDA": "H3G EMPREENDIMENTOS IMOBILIRIOS LTDA",
+                "CAMPOY CORRETORA": "H3G EMPREENDIMENTOS IMOBILIRIOS",
+                "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330": "AVENIDA CURITIBA, 1800,",
+                "CENTRO": "CENTRO",
+                "86.800-022": "86.800-702",
+                "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767": "ANGELITA RIBEIRO MENDONCA DE OLIVEIRA F35771"
+              },
+              {
+                "J10856": "J5429",
+                "CAMPOY CORRETORA DE IMӖEIS LTDA": "CONSTRUTORA OTHON LTDA - ME",
+                "CAMPOY CORRETORA": "IMOBILIARIA / CONSTRUTORA OTHON",
+                "RUA DESEMBARGADOR CLOTRIO PORTUGAL ,1330": "PRAǁ INTERVENTOR MANOEL RIBAS, 125 AP. 504,",
+                "CENTRO": "CENTRO",
+                "86.800-022": "86.800-680",
+                "CESAR AUGUSTO ROMAGNOLI PINTO CAMPOY RIBAS F22767": "JOSE ROBERTO LUCIANO F25174"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "C:/Users/ricll/Downloads/3265.xls",
+    "sheets": [
+      {
+        "sheetName": "Sheet1",
+        "ref": "A1:S2",
+        "topRows": [
+          [
+            "REGULARIDADE",
+            "DATA DA INSCRI��O",
+            "DATA DA SITUA��O",
+            "REGISTRO",
+            "CPF/CNPJ",
+            "RG",
+            "NOME/RAZ�O SOCIAL",
+            "NOME FANTASIA/NPA",
+            "ENDERE�O",
+            "BAIRRO",
+            "CIDADE",
+            "UF"
+          ],
+          [
+            "APTO",
+            "30/10/1987",
+            "30/10/1987",
+            "F6567",
+            "233.149.239-53",
+            "1373216 SSP PR",
+            "JOSE ANTONIO DE BRITO",
+            "",
+            "AV. ARARAPIRA, 203,",
+            "CENTRO",
+            "GUARAQUE�ABA",
+            "PR"
+          ]
+        ],
+        "headerCandidates": [
+          {
+            "headerRow": 0,
+            "columns": [
+              "REGULARIDADE",
+              "DATA DA INSCRI��O",
+              "DATA DA SITUA��O",
+              "REGISTRO",
+              "CPF/CNPJ",
+              "RG",
+              "NOME/RAZ�O SOCIAL",
+              "NOME FANTASIA/NPA",
+              "ENDERE�O",
+              "BAIRRO",
+              "CIDADE",
+              "UF",
+              "CEP",
+              "DELEGACIA",
+              "�LTIMA AUTUA��O"
+            ],
+            "preview": [
+              {
+                "REGULARIDADE": "APTO",
+                "DATA DA INSCRI��O": "30/10/1987",
+                "DATA DA SITUA��O": "30/10/1987",
+                "REGISTRO": "F6567",
+                "CPF/CNPJ": "233.149.239-53",
+                "RG": "1373216 SSP PR",
+                "NOME/RAZ�O SOCIAL": "JOSE ANTONIO DE BRITO",
+                "ENDERE�O": "AV. ARARAPIRA, 203,",
+                "BAIRRO": "CENTRO",
+                "CIDADE": "GUARAQUE�ABA",
+                "UF": "PR",
+                "CEP": "83.390-000",
+                "DELEGACIA": "SUB-REGIONAL MATINHOS"
+              }
+            ]
+          },
+          {
+            "headerRow": 1,
+            "columns": [
+              "APTO",
+              "30/10/1987",
+              "30/10/1987",
+              "F6567",
+              "233.149.239-53",
+              "1373216 SSP PR",
+              "JOSE ANTONIO DE BRITO",
+              "__empty_7",
+              "AV. ARARAPIRA, 203,",
+              "CENTRO",
+              "GUARAQUE�ABA",
+              "PR",
+              "83.390-000",
+              "SUB-REGIONAL MATINHOS",
+              "__empty_14"
+            ],
+            "preview": []
+          }
+        ]
+      }
+    ]
+  }
+]
