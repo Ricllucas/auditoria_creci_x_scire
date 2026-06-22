@@ -5,6 +5,7 @@ import { formatDateTime, formatFileSize } from '../utils/format';
 interface FileSectionProps {
   definition: UploadSectionDefinition;
   section: UploadSectionState;
+  isPersistent?: boolean;
   onAddFiles: (sectionId: UploadSectionState['id'], files: FileList | null, mode: 'append' | 'replace') => void;
   onRemoveFile: (sectionId: UploadSectionState['id'], fileId: string) => void;
   onClearSection: (sectionId: UploadSectionState['id']) => void;
@@ -13,18 +14,26 @@ interface FileSectionProps {
 }
 
 export function FileSection(props: FileSectionProps) {
-  const { definition, section, onAddFiles, onRemoveFile, onClearSection, onToggleFiles, onConfirmSection } = props;
+  const { definition, section, isPersistent = false, onAddFiles, onRemoveFile, onClearSection, onToggleFiles, onConfirmSection } = props;
   const appendInputRef = useRef<HTMLInputElement | null>(null);
   const replaceInputRef = useRef<HTMLInputElement | null>(null);
 
   const accept = definition.acceptedExtensions.map((extension) => `.${extension}`).join(',');
 
   return (
-    <section className="section-card">
+    <section className={`section-card${isPersistent ? ' section-card--persistent' : ''}`}>
       <div className="section-card__header">
         <div>
-          <h2>{definition.title}</h2>
+          <h2>
+            {definition.title}
+            {isPersistent && <span className="persistent-badge">Salvo neste navegador</span>}
+          </h2>
           <p>{definition.description}</p>
+          {isPersistent && (
+            <p className="persistent-note">
+              Os arquivos desta seção ficam salvos automaticamente e são recarregados a cada nova sessão. Não é necessário reanexá-los para cada análise.
+            </p>
+          )}
         </div>
         <div className={`status-chip ${section.confirmed ? 'status-chip--success' : 'status-chip--neutral'}`}>
           {section.confirmed ? 'Seção confirmada' : 'Aguardando confirmação'}
@@ -48,11 +57,11 @@ export function FileSection(props: FileSectionProps) {
         </button>
         <button
           type="button"
-          className="button"
+          className={`button${isPersistent ? ' button--danger' : ''}`}
           onClick={() => onClearSection(section.id)}
           disabled={!section.files.length}
         >
-          Limpar seção
+          {isPersistent ? 'Excluir dados salvos' : 'Limpar seção'}
         </button>
         <button
           type="button"
@@ -112,6 +121,9 @@ export function FileSection(props: FileSectionProps) {
                 <span className={`file-badge ${file.status === 'ready' ? 'file-badge--ok' : 'file-badge--error'}`}>
                   {file.status === 'ready' ? 'Pronto para análise' : file.issue || 'Inválido'}
                 </span>
+                {isPersistent && (
+                  <span className="file-badge file-badge--saved">Salvo permanentemente</span>
+                )}
               </div>
               <button type="button" className="button button--danger" onClick={() => onRemoveFile(section.id, file.id)}>
                 Excluir arquivo

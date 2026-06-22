@@ -16,12 +16,21 @@ import {
   SavedAnalysisRecord,
   SavedAnalysisSummary,
   UploadFileItem,
+  UploadSectionId,
   UploadSectionState,
 } from './types';
 import { runAuditAnalysis } from './utils/analysisEngine';
 import { exportAnalysisToExcel, exportAnalysisToPdf } from './utils/exporters';
 import { parseUploadedFiles } from './utils/fileParsers';
 import { downloadBlob, formatCurrency, formatDateTime, safeJsonParse } from './utils/format';
+import {
+  clearPersistentSection,
+  loadPersistentSection,
+  removePersistentFile,
+  savePersistentFile,
+} from './utils/persistentStorage';
+
+const PERSISTENT_SECTION_IDS: UploadSectionId[] = ['userBase', 'contracts'];
 
 function createInitialSections(): UploadSectionState[] {
   return SECTION_DEFINITIONS.map((definition) => ({
@@ -111,6 +120,25 @@ export default function App() {
     localStorage.setItem(STORAGE_KEYS.savedAnalyses, JSON.stringify(savedAnalysisRecords));
   }, [savedAnalysisRecords]);
 
+  // Load persisted files (userBase + contracts) from IndexedDB on first render
+  useEffect(() => {
+    async function restorePersistentSections() {
+      for (const sectionId of PERSISTENT_SECTION_IDS) {
+        const items = await loadPersistentSection(sectionId);
+        if (items.length > 0) {
+          setSections((current) =>
+            current.map((section) =>
+              section.id === sectionId
+                ? { ...section, files: items, confirmed: true, showFiles: true }
+                : section,
+            ),
+          );
+        }
+      }
+    }
+    void restorePersistentSections();
+  }, []);
+
   const sectionLookup = useMemo(
     () =>
       Object.fromEntries(
@@ -160,6 +188,15 @@ export default function App() {
     const definition = sectionLookup[sectionId];
     const nextFiles = Array.from(files).map((file) => createUploadFile(file, definition.acceptedExtensions));
 
+    if (PERSISTENT_SECTION_IDS.includes(sectionId as UploadSectionId)) {
+      if (mode === 'replace') {
+        void clearPersistentSection(sectionId);
+      }
+      for (const item of nextFiles) {
+        void savePersistentFile(sectionId, item);
+      }
+    }
+
     updateSection(sectionId, (section) => ({
       ...section,
       files: mode === 'replace' ? nextFiles : [...section.files, ...nextFiles],
@@ -171,6 +208,9 @@ export default function App() {
   };
 
   const handleRemoveFile = (sectionId: UploadSectionState['id'], fileId: string) => {
+    if (PERSISTENT_SECTION_IDS.includes(sectionId as UploadSectionId)) {
+      void removePersistentFile(sectionId, fileId);
+    }
     updateSection(sectionId, (section) => ({
       ...section,
       files: section.files.filter((file) => file.id !== fileId),
@@ -180,6 +220,9 @@ export default function App() {
   };
 
   const handleClearSection = (sectionId: UploadSectionState['id']) => {
+    if (PERSISTENT_SECTION_IDS.includes(sectionId as UploadSectionId)) {
+      void clearPersistentSection(sectionId);
+    }
     updateSection(sectionId, (section) => ({
       ...section,
       files: [],
@@ -237,11 +280,21 @@ export default function App() {
   };
 
   const handleClearAll = () => {
-    setSections(createInitialSections());
+    // Clear only temporary sections (creciCalls, scireCalls)
+    // Persistent sections (userBase, contracts) remain loaded
+    setSections((current) =>
+      current.map((section) =>
+        PERSISTENT_SECTION_IDS.includes(section.id as UploadSectionId)
+          ? section
+          : { ...section, files: [], confirmed: false },
+      ),
+    );
     setResult(null);
     setActiveView('import');
     setStaleResults(false);
-    setStatusMessage('Todas as seções foram limpas.');
+    setStatusMessage(
+      'Chamados limpos. Bases de usuários e contratos permanecem carregados para nova análise.',
+    );
   };
 
   const handleDownloadSnapshot = () => {
@@ -463,6 +516,7 @@ export default function App() {
                       key={definition.id}
                       definition={definition}
                       section={section}
+                      isPersistent={PERSISTENT_SECTION_IDS.includes(definition.id as UploadSectionId)}
                       onAddFiles={handleAddFiles}
                       onRemoveFile={handleRemoveFile}
                       onClearSection={handleClearSection}
