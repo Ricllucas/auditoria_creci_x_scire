@@ -1676,6 +1676,16 @@ export function runAuditAnalysis(params: {
   const scireTickets = extractTickets(fileGroups.scireCalls, 'SCIRE');
   const contractInsights = extractContractInsights(fileGroups.contracts);
   const appliedRate = chooseApplicableHourlyRate(settings, contractInsights);
+
+  // DEBUG — remover após diagnóstico
+  console.log('[DEBUG] scireTickets.length =', scireTickets.length);
+  console.log('[DEBUG] appliedRate =', appliedRate);
+  const _dbgTotalMin = scireTickets.reduce((s, t) => s + t.minutes, 0);
+  console.log('[DEBUG] totalMinutesScire =', _dbgTotalMin);
+  console.log('[DEBUG] billedValueExpected =', (_dbgTotalMin / 60) * appliedRate);
+  const _dbgTop5 = scireTickets.slice().sort((a, b) => b.minutes - a.minutes).slice(0, 5);
+  console.log('[DEBUG] top5minutes =', _dbgTop5.map(t => `${t.code}:${t.minutes}min billedValue=${t.billedValue}`));
+  // FIM DEBUG
   const groups = buildTicketGroups(creciTickets, scireTickets, settings.similarityThreshold);
   const auditGroups = buildAuditGroups({
     groups,
