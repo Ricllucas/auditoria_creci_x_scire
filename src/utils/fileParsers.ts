@@ -92,7 +92,7 @@ const SPREADSHEET_TEMPLATES: SpreadsheetTemplate[] = [
     ],
     dataKinds: ['id', 'text', 'text', 'cpf', 'date', 'time', 'number'],
     minimumHeaderScore: 10,
-    minimumDataScore: 6,
+    minimumDataScore: 4,
   },
   {
     id: 'support_with_user_7',
@@ -339,6 +339,19 @@ function createRowFromTemplate(row: MatrixRow, template: SpreadsheetTemplate, sh
   return entry;
 }
 
+const TOTALIZER_PATTERNS = [
+  /^total\s+em\s+horas?$/i,
+  /^total\s+para\s+faturamento$/i,
+  /^total\s+geral$/i,
+  /^grand\s*total$/i,
+  /^subtotal$/i,
+];
+
+function isTotalizerRow(row: MatrixRow): boolean {
+  // Only check the first two cells — totalizer labels appear in the leftmost columns
+  return row.slice(0, 2).some((cell) => TOTALIZER_PATTERNS.some((pattern) => pattern.test(cell.trim())));
+}
+
 function parseRowsByTemplate(
   matrix: MatrixRow[],
   template: SpreadsheetTemplate,
@@ -347,6 +360,7 @@ function parseRowsByTemplate(
 ): ParsedInputRow[] {
   return matrix
     .slice(startRowIndex)
+    .filter((row) => !isTotalizerRow(row))
     .filter((row) => scoreDataRow(row, template) >= template.minimumDataScore)
     .map((row) => createRowFromTemplate(row, template, sheetName));
 }

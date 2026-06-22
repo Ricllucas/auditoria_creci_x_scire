@@ -328,6 +328,13 @@ function parseDateValue(value: string): string {
     return Number.isNaN(d.getTime()) ? trimmed : d.toISOString();
   }
 
+  // Partial date MM/YYYY (e.g. "04/2026") — treat as first day of that month
+  if (/^\d{1,2}\/\d{4}$/.test(trimmed)) {
+    const [month, year] = trimmed.split('/');
+    const d = new Date(`${year}-${month.padStart(2, '0')}-01T00:00:00`);
+    return Number.isNaN(d.getTime()) ? trimmed : d.toISOString();
+  }
+
   const parsed = new Date(trimmed);
   return Number.isNaN(parsed.getTime()) ? trimmed : parsed.toISOString();
 }
