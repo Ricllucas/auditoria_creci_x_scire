@@ -73,11 +73,48 @@ async function parsePdf(file: File): Promise<{ text: string; pageCount: number }
   for (let index = 1; index <= pdf.numPages; index += 1) {
     const page = await pdf.getPage(index);
     const content = await page.getTextContent();
-    const text = content.items
-      .map((item) => ('str' in item ? item.str : ''))
-      .join(' ')
-      .replace(/\s+/g, ' ')
+    const lines: Array<{ y: number; items: Array<{ x: number; text: string }> }> = [];
+
+    content.items.forEach((item) => {
+      if (!('str' in item)) {
+        return;
+      }
+
+      const text = item.str.replace(/\s+/g, ' ').trim();
+      if (!text) {
+        return;
+      }
+
+      const transform = 'transform' in item && Array.isArray(item.transform) ? item.transform : [];
+      const x = typeof transform[4] === 'number' ? transform[4] : 0;
+      const y = typeof transform[5] === 'number' ? transform[5] : 0;
+      const existingLine = lines.find((line) => Math.abs(line.y - y) <= 3);
+
+      if (existingLine) {
+        existingLine.items.push({ x, text });
+        return;
+      }
+
+      lines.push({
+        y,
+        items: [{ x, text }],
+      });
+    });
+
+    const text = lines
+      .sort((left, right) => right.y - left.y)
+      .map((line) =>
+        line.items
+          .sort((left, right) => left.x - right.x)
+          .map((item) => item.text)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim(),
+      )
+      .filter(Boolean)
+      .join('\n')
       .trim();
+
     pageTexts.push(text);
   }
 

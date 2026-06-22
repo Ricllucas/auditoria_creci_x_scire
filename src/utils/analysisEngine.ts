@@ -15,7 +15,7 @@ import {
 } from '../types';
 import { GENERIC_TITLE_KEYWORDS, IMPROVEMENT_KEYWORDS, OBLIGATION_KEYWORDS, SECTION_DEFINITIONS } from '../constants';
 import { formatCpf, isValidCpf, normalizeCpf } from './cpf';
-import { formatCurrency, formatNumber, formatDate, uniqueBy } from './format';
+import { formatCurrency, formatDate, formatNumber, uniqueBy } from './format';
 
 function normalizeText(value: string): string {
   return value
@@ -27,8 +27,84 @@ function normalizeText(value: string): string {
     .trim();
 }
 
+const TEXT_KEY_STOPWORDS = new Set([
+  'a',
+  'ao',
+  'aos',
+  'as',
+  'com',
+  'da',
+  'das',
+  'de',
+  'do',
+  'dos',
+  'e',
+  'em',
+  'na',
+  'nas',
+  'no',
+  'nos',
+  'o',
+  'os',
+  'para',
+  'por',
+  'sem',
+  'um',
+  'uma',
+]);
+
+function normalizeWhitespace(value: string): string {
+  return value
+    .replace(/\r/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
+function textToKey(value: string): string {
+  return [...new Set(normalizeText(value).split(' ').filter((token) => token.length > 2 && !TEXT_KEY_STOPWORDS.has(token)))]
+    .sort()
+    .slice(0, 12)
+    .join(' ');
+}
+
+function normalizeCode(value: string): string {
+  return normalizeText(value).replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+}
+
+function rowToText(row: ParsedInputRow): string {
+  return Object.entries(row)
+    .filter(([key]) => !key.startsWith('_'))
+    .map(([, value]) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+function cleanExtractedValue(value: string): string {
+  return value
+    .replace(/\s+/g, ' ')
+    .replace(/^[|:;,.–—\-\s]+/, '')
+    .replace(/[|:;,.–—\-\s]+$/, '')
+    .trim();
+}
+
+function extractByPatterns(text: string, patterns: RegExp[]): string {
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const value = match?.[1] ?? match?.[0] ?? '';
+    const cleaned = cleanExtractedValue(value);
+    if (cleaned) {
+      return cleaned;
+    }
+  }
+
+  return '';
+}
+
 function firstFilled(row: ParsedInputRow, aliases: string[]): string {
   const normalizedAliases = aliases.map((alias) => normalizeText(alias));
+
   for (const [key, value] of Object.entries(row)) {
     if (normalizedAliases.includes(normalizeText(key))) {
       return String(value ?? '').trim();
@@ -43,6 +119,181 @@ function firstFilled(row: ParsedInputRow, aliases: string[]): string {
   }
 
   return '';
+}
+
+function firstMeaningfulLine(text: string): string {
+  const lines = normalizeWhitespace(text)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return (
+    lines.find(
+      (line) =>
+        !/(cpf|status|situacao|situação|data|hora|valor|departamento|setor|usuario|usuário|solicitante|descricao|descrição|historico|histórico)/i.test(
+          line,
+        ),
+    ) ?? lines[0] ?? ''
+  );
+}
+
+function splitTextIntoBlocks(text: string, anchorPattern: RegExp): string[] {
+  const normalized = normalizeWhitespace(text);
+  if (!normalized) {
+    return [];
+  }
+
+  const blankLineBlocks = normalized
+    .split(/\n\s*\n+/)
+    .map((block) => block.trim())
+    .filter((block) => block.length > 12);
+
+  if (blankLineBlocks.length > 1) {
+    return blankLineBlocks;
+  }
+
+  const lines = normalized
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) {
+    return [];
+  }
+
+  const blocks: string[] = [];
+  let current: string[] = [];
+  let currentHasAnchor = false;
+
+  lines.forEach((line) => {
+    const isAnchor = anchorPattern.test(line);
+
+    if (isAnchor && current.length >= 3 && currentHasAnchor) {
+      blocks.push(current.join('\n'));
+      current = [line];
+      currentHasAnchor = true;
+      return;
+    }
+
+    current.push(line);
+    currentHasAnchor = currentHasAnchor || isAnchor;
+  });
+
+  if (current.length) {
+    blocks.push(current.join('\n'));
+  }
+
+  return blocks.length ? blocks : [normalized];
+}
+
+function looksLikePersonName(value: string): boolean {
+  const cleaned = cleanExtractedValue(value);
+  const words = normalizeText(cleaned).split(' ').filter(Boolean);
+
+  return (
+    words.length >= 2 &&
+    words.length <= 7 &&
+    /^[A-Za-zÀ-ÿ\s]+$/u.test(cleaned) &&
+    !/(departamento|setor|gerencia|gerência|lotacao|lotação|cpf|matricula|matrícula|usuario|usuário)/i.test(cleaned)
+  );
+}
+
+function extractCpfFromText(text: string): string {
+  return extractByPatterns(text, [/\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/]);
+}
+
+function extractDateFromText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:data|abertura|criacao|criação|em)\s*[:\-]?\s*(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?)/i,
+    /\b(\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?)\b/,
+  ]);
+}
+
+function extractStatusFromText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:status|situacao|situação|estado)\s*[:\-]?\s*([^\n]{3,60})/i,
+    /\b(aberto|aberta|fechado|fechada|encerrado|encerrada|concluido|concluído|concluida|concluída|pendente|em andamento|em analise|em análise|cancelado|cancelada)\b/i,
+  ]);
+}
+
+function extractPersonFromText(text: string): string {
+  const labeledValue = extractByPatterns(text, [
+    /(?:usuario|usuário|solicitante|nome|colaborador|servidor)\s*[:\-]?\s*([^\n]{4,120})/i,
+  ]);
+
+  if (labeledValue && looksLikePersonName(labeledValue)) {
+    return labeledValue;
+  }
+
+  const lines = normalizeWhitespace(text)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const cpfLineIndex = lines.findIndex((line) => /\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/.test(line));
+  const candidates = [
+    lines[cpfLineIndex]?.replace(/\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/g, '').trim(),
+    lines[cpfLineIndex - 1],
+    lines[cpfLineIndex + 1],
+  ].filter(Boolean) as string[];
+
+  return candidates.find((candidate) => looksLikePersonName(candidate)) ?? '';
+}
+
+function extractDepartmentFromText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:departamento|depto|gerencia|gerência|lotacao|lotação|area|área)\s*[:\-]?\s*([^\n]{2,80})/i,
+  ]);
+}
+
+function extractSectorFromText(text: string): string {
+  return extractByPatterns(text, [/(?:setor|secao|seção|subsetor)\s*[:\-]?\s*([^\n]{2,80})/i]);
+}
+
+function extractCodeFromText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:codigo|código|chamado|ticket|protocolo|id)\s*(?:n(?:o|º|°|úmero|umero)?)?\s*[:#-]?\s*([A-Z0-9._/-]{3,})/i,
+    /\b((?:OS|REQ|INC|CH|TKT)[-_/.]?\d{2,})\b/i,
+  ]);
+}
+
+function extractTitleFromText(text: string): string {
+  return (
+    extractByPatterns(text, [/(?:titulo|título|assunto|demanda|resumo)\s*[:\-]?\s*([^\n]{4,140})/i]) ||
+    cleanExtractedValue(firstMeaningfulLine(text)).slice(0, 140)
+  );
+}
+
+function extractDescriptionFromText(text: string): string {
+  const labeledDescription = extractByPatterns(text, [
+    /(?:descricao|descrição|detalhe|historico|histórico|texto|solicitacao|solicitação)\s*[:\-]?\s*([\s\S]{8,500})/i,
+  ]);
+
+  return labeledDescription || normalizeWhitespace(text).slice(0, 1200);
+}
+
+function extractMinutesText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:tempo(?:\s+tecnico|\s+técnico)?|duracao|duração|minutos?)\s*[:\-]?\s*([^\n]{1,40})/i,
+    /\b(\d{1,2}:\d{2})\b/,
+    /\b(\d+(?:[.,]\d+)?\s*h(?:oras?)?(?:\s*\d+(?:[.,]\d+)?\s*m(?:in)?)?)\b/i,
+  ]);
+}
+
+function extractHoursText(text: string): string {
+  return extractByPatterns(text, [/(?:horas?|tempo em horas)\s*[:\-]?\s*([^\n]{1,30})/i]);
+}
+
+function extractHourlyRateText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:valor\/hora|valor hora|vr\.?\s*hora|hora tecnica|hora técnica)\s*[:\-]?\s*(R?\$?\s*[\d.]+,\d{2})/i,
+  ]);
+}
+
+function extractBilledValueText(text: string): string {
+  return extractByPatterns(text, [
+    /(?:valor cobrado|total cobrado|cobranca|cobrança|valor total|total)\s*[:\-]?\s*(R?\$?\s*[\d.]+,\d{2})/i,
+  ]);
 }
 
 function parseExcelDate(value: number): string {
@@ -107,13 +358,13 @@ function parseMinutes(value: string, hoursValue?: string): number {
     return hours * 60 + minutes;
   }
 
-  const asNumber = parseBrazilianNumber(normalized);
-  return asNumber;
+  return parseBrazilianNumber(normalized);
 }
 
 function jaccardSimilarity(left: string, right: string): number {
   const leftTokens = new Set(normalizeText(left).split(' ').filter(Boolean));
   const rightTokens = new Set(normalizeText(right).split(' ').filter(Boolean));
+
   if (!leftTokens.size && !rightTokens.size) {
     return 1;
   }
@@ -130,8 +381,88 @@ function compactParts(parts: Array<string | undefined | null>): string {
     .join(' | ');
 }
 
+function extractDirectoryRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
+  const rows: ParsedInputRow[] = [];
+
+  splitTextIntoBlocks(file.textContent, /\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/).forEach((block) => {
+    const cpf = extractCpfFromText(block);
+    if (!cpf) {
+      return;
+    }
+
+    const department = extractDepartmentFromText(block);
+    const sector = extractSectorFromText(block);
+    const userName = extractPersonFromText(block) || extractTitleFromText(block);
+
+    rows.push({
+      cpf,
+      usuario: userName,
+      departamento: department,
+      setor: sector,
+      _rawText: block,
+    });
+  });
+
+  return rows;
+}
+
+function extractTicketRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
+  return splitTextIntoBlocks(
+    file.textContent,
+    /(?:codigo|código|chamado|ticket|protocolo|cpf|solicitante|usuario|usuário|titulo|título|assunto|demanda|descricao|descrição|status)/i,
+  )
+    .map((block) => {
+      const normalizedBlock = normalizeWhitespace(block);
+      if (!normalizedBlock) {
+        return null;
+      }
+
+      const row: ParsedInputRow = {
+        codigo: extractCodeFromText(normalizedBlock),
+        titulo: extractTitleFromText(normalizedBlock),
+        descricao: extractDescriptionFromText(normalizedBlock),
+        data: extractDateFromText(normalizedBlock),
+        status: extractStatusFromText(normalizedBlock),
+        cpf: extractCpfFromText(normalizedBlock),
+        usuario: extractPersonFromText(normalizedBlock),
+        departamento: extractDepartmentFromText(normalizedBlock),
+        setor: extractSectorFromText(normalizedBlock),
+        minutos: extractMinutesText(normalizedBlock),
+        horas: extractHoursText(normalizedBlock),
+        'valor hora': extractHourlyRateText(normalizedBlock),
+        'valor cobrado': extractBilledValueText(normalizedBlock),
+        _rawText: normalizedBlock,
+      };
+
+      const evidenceCount = [
+        row.codigo,
+        row.cpf,
+        row.usuario,
+        row.departamento,
+        row.data,
+        row.status,
+        row.minutos,
+        row['valor cobrado'],
+      ].filter(Boolean).length;
+
+      const title = String(row.titulo ?? '');
+      const description = String(row.descricao ?? '');
+
+      if (evidenceCount === 0 && title.length < 12 && description.length < 30) {
+        return null;
+      }
+
+      return row;
+    })
+    .filter((row): row is ParsedInputRow => Boolean(row));
+}
+
 function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
-  const rows = files.flatMap((file) => file.rows.map((row) => ({ row, fileName: file.fileName })));
+  const rows = files.flatMap((file) => [
+    ...file.rows.map((row) => ({ row, fileName: file.fileName })),
+    ...extractDirectoryRowsFromText(file).map((row) => ({ row, fileName: file.fileName })),
+  ]);
+
   return rows
     .map(({ row, fileName }) => {
       const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']);
@@ -139,9 +470,11 @@ function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
       const department = firstFilled(row, ['departamento', 'depto', 'gerencia', 'gerência', 'lotacao', 'lotação', 'area']);
       const sector = firstFilled(row, ['setor', 'secao', 'seção', 'subsetor']);
       const cpf = normalizeCpf(cpfRaw);
+
       if (!cpf && !userName && !department) {
         return null;
       }
+
       return {
         cpf,
         cpfRaw,
@@ -155,47 +488,50 @@ function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
 }
 
 function extractTickets(files: ParsedInputFile[], origin: TicketRecord['origin']): TicketRecord[] {
-  const textRows = files
-    .filter((file) => !file.rows.length && file.textContent)
-    .flatMap((file) =>
-      file.textContent
-        .split(/\n+/)
-        .map((line) => ({
-          sourceFile: file.fileName,
-          row: {
-            titulo: line.slice(0, 120),
-            descricao: line,
-          },
-        })),
-    );
+  const textRows = files.flatMap((file) =>
+    extractTicketRowsFromText(file).map((row) => ({
+      sourceFile: file.fileName,
+      row,
+    })),
+  );
 
   const tabularRows = files.flatMap((file) => file.rows.map((row) => ({ sourceFile: file.fileName, row })));
 
   return [...tabularRows, ...textRows]
     .map(({ row, sourceFile }) => {
-      const code = firstFilled(row, ['codigo', 'código', 'chamado', 'ticket', 'protocolo', 'id']);
-      const title = firstFilled(row, ['titulo', 'título', 'assunto', 'demanda', 'resumo']);
-      const description = firstFilled(row, ['descricao', 'descrição', 'detalhe', 'historico', 'histórico', 'texto']);
-      const openedAt = parseDateValue(firstFilled(row, ['data', 'abertura', 'criacao', 'criação', 'data abertura']));
-      const status = firstFilled(row, ['status', 'situação', 'situacao', 'estado']);
-      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']);
-      const userName = firstFilled(row, ['usuario', 'usuário', 'solicitante', 'nome']);
-      const department = firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia']);
-      const sector = firstFilled(row, ['setor', 'secao', 'seção']);
+      const rawText = rowToText(row);
+      const code = firstFilled(row, ['codigo', 'código', 'chamado', 'ticket', 'protocolo', 'id']) || extractCodeFromText(rawText);
+      const title = firstFilled(row, ['titulo', 'título', 'assunto', 'demanda', 'resumo']) || extractTitleFromText(rawText);
+      const description =
+        firstFilled(row, ['descricao', 'descrição', 'detalhe', 'historico', 'histórico', 'texto']) ||
+        extractDescriptionFromText(rawText);
+      const openedAt = parseDateValue(
+        firstFilled(row, ['data', 'abertura', 'criacao', 'criação', 'data abertura']) || extractDateFromText(rawText),
+      );
+      const status = firstFilled(row, ['status', 'situação', 'situacao', 'estado']) || extractStatusFromText(rawText);
+      const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']) || extractCpfFromText(rawText);
+      const userName = firstFilled(row, ['usuario', 'usuário', 'solicitante', 'nome']) || extractPersonFromText(rawText);
+      const department = firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia']) || extractDepartmentFromText(rawText);
+      const sector = firstFilled(row, ['setor', 'secao', 'seção']) || extractSectorFromText(rawText);
       const minutes = parseMinutes(
-        firstFilled(row, ['minutos', 'tempo', 'tempo tecnico', 'tempo técnico', 'duracao', 'duração']),
-        firstFilled(row, ['horas', 'tempo horas', 'tempo em horas']),
+        firstFilled(row, ['minutos', 'tempo', 'tempo tecnico', 'tempo técnico', 'duracao', 'duração']) ||
+          extractMinutesText(rawText),
+        firstFilled(row, ['horas', 'tempo horas', 'tempo em horas']) || extractHoursText(rawText),
       );
       const hourlyRate = parseBrazilianNumber(
-        firstFilled(row, ['valor hora', 'valor/hora', 'vr hora', 'hora tecnica', 'hora técnica']),
+        firstFilled(row, ['valor hora', 'valor/hora', 'vr hora', 'hora tecnica', 'hora técnica']) ||
+          extractHourlyRateText(rawText),
       );
       const billedValue = parseBrazilianNumber(
-        firstFilled(row, ['valor cobrado', 'valor', 'cobranca', 'cobrança', 'total cobrado', 'total']),
+        firstFilled(row, ['valor cobrado', 'valor', 'cobranca', 'cobrança', 'total cobrado', 'total']) ||
+          extractBilledValueText(rawText),
       );
       const cpf = normalizeCpf(cpfRaw);
+
       if (!code && !title && !description && !cpf && !userName) {
         return null;
       }
+
       return {
         origin,
         sourceFile,
@@ -223,10 +559,7 @@ function extractContractInsights(files: ParsedInputFile[]): ContractInsight[] {
   const insights: ContractInsight[] = [];
 
   files.forEach((file) => {
-    const content = [file.textContent, ...file.rows.map((row) => Object.values(row).join(' '))]
-      .join('\n')
-      .replace(/\s+/g, ' ')
-      .trim();
+    const content = normalizeWhitespace([file.textContent, ...file.rows.map((row) => Object.values(row).join(' '))].join('\n'));
 
     if (!content) {
       insights.push({
@@ -241,7 +574,7 @@ function extractContractInsights(files: ParsedInputFile[]): ContractInsight[] {
     const rateMatches = [...content.matchAll(/R\$\s*([\d.]+,\d{2})/g)];
     rateMatches.forEach((match) => {
       const index = match.index ?? 0;
-      const excerpt = content.slice(Math.max(0, index - 70), index + 120);
+      const excerpt = content.slice(Math.max(0, index - 90), index + 140);
       if (/hora|tecnic|suporte|servico|serviço/i.test(excerpt)) {
         insights.push({
           sourceFile: file.fileName,
@@ -289,7 +622,7 @@ function extractContractInsights(files: ParsedInputFile[]): ContractInsight[] {
             sourceFile: file.fileName,
             kind: rule.kind,
             label: rule.label,
-            excerpt: content.slice(Math.max(0, index - 70), index + 140),
+            excerpt: content.slice(Math.max(0, index - 90), index + 160),
           });
         }
       });
@@ -387,23 +720,93 @@ function resolveOfficialDepartment(
 
 function signature(ticket: TicketRecord): string {
   const dateKey = ticket.openedAt ? ticket.openedAt.slice(0, 10) : '';
-  return [
-    normalizeText(ticket.code),
-    normalizeText(ticket.title),
-    normalizeText(ticket.description).slice(0, 120),
-    normalizeText(ticket.cpf),
-    normalizeText(dateKey),
-  ]
+  return [normalizeCode(ticket.code), textToKey(ticket.title), textToKey(ticket.description), normalizeText(ticket.cpf), normalizeText(dateKey)]
     .filter(Boolean)
     .join('|');
 }
 
-function baseKey(ticket: TicketRecord): string {
-  if (ticket.code) {
-    return `code:${normalizeText(ticket.code)}`;
+function ticketsMatch(left: TicketRecord, right: TicketRecord, threshold: number): boolean {
+  const sameCode = Boolean(left.code && right.code && normalizeCode(left.code) === normalizeCode(right.code));
+  if (sameCode) {
+    return true;
   }
 
-  return `sig:${signature(ticket)}`;
+  const sameCpf = Boolean(left.cpf && right.cpf && left.cpf === right.cpf);
+  const sameUser =
+    Boolean(left.userName && right.userName) && normalizeText(left.userName) === normalizeText(right.userName);
+  const sameDepartment =
+    Boolean(left.department && right.department) && normalizeText(left.department) === normalizeText(right.department);
+  const sameDate =
+    Boolean(left.openedAt && right.openedAt) && left.openedAt.slice(0, 10) === right.openedAt.slice(0, 10);
+  const similarity = jaccardSimilarity(compactParts([left.title, left.description]), compactParts([right.title, right.description]));
+
+  let score = 0;
+  if (sameCpf) {
+    score += 3;
+  }
+  if (sameUser) {
+    score += 2;
+  }
+  if (sameDepartment) {
+    score += 1;
+  }
+  if (sameDate) {
+    score += 1;
+  }
+  if (similarity >= threshold) {
+    score += 3;
+  } else if (similarity >= threshold / 1.6) {
+    score += 2;
+  } else if (similarity >= threshold / 2) {
+    score += 1;
+  }
+
+  return score >= 4 || (sameCpf && similarity >= threshold / 2) || (sameDate && similarity >= threshold);
+}
+
+function buildTicketGroups(
+  creciTickets: TicketRecord[],
+  scireTickets: TicketRecord[],
+  threshold: number,
+): Array<{ key: string; creci: TicketRecord[]; scire: TicketRecord[] }> {
+  const groups: Array<{ key: string; creci: TicketRecord[]; scire: TicketRecord[] }> = [];
+
+  scireTickets.forEach((ticket) => {
+    groups.push({
+      key: normalizeCode(ticket.code) || signature(ticket) || `scire-${groups.length + 1}`,
+      creci: [],
+      scire: [ticket],
+    });
+  });
+
+  creciTickets.forEach((ticket) => {
+    const match = groups.find((group) => group.scire.some((candidate) => ticketsMatch(ticket, candidate, threshold)));
+
+    if (match) {
+      match.creci.push(ticket);
+      if (!match.key) {
+        match.key = normalizeCode(ticket.code) || signature(ticket);
+      }
+      return;
+    }
+
+    const sameOriginMatch = groups.find((group) => group.creci.some((candidate) => ticketsMatch(ticket, candidate, threshold)));
+    if (sameOriginMatch) {
+      sameOriginMatch.creci.push(ticket);
+      return;
+    }
+
+    groups.push({
+      key: normalizeCode(ticket.code) || signature(ticket) || `creci-${groups.length + 1}`,
+      creci: [ticket],
+      scire: [],
+    });
+  });
+
+  return groups.map((group, index) => ({
+    ...group,
+    key: group.key || `grupo-${index + 1}`,
+  }));
 }
 
 function detectClassification(
@@ -453,6 +856,7 @@ function detectConfidence(
   description: string,
 ): ConfidenceLevel {
   const genericTitle = GENERIC_TITLE_KEYWORDS.some((keyword) => normalizeText(title).includes(normalizeText(keyword)));
+
   if (
     !validCpf ||
     !officialDepartment ||
@@ -498,17 +902,10 @@ function detectComparison(
 
   const cpfMatch = creci.cpf && scire.cpf ? creci.cpf === scire.cpf : false;
   const userMatch =
-    creci.userName && scire.userName
-      ? normalizeText(creci.userName) === normalizeText(scire.userName)
-      : false;
+    creci.userName && scire.userName ? normalizeText(creci.userName) === normalizeText(scire.userName) : false;
   const departmentMatch =
-    creci.department && scire.department
-      ? normalizeText(creci.department) === normalizeText(scire.department)
-      : false;
-  const descriptionSimilarity = jaccardSimilarity(
-    compactParts([creci.title, creci.description]),
-    compactParts([scire.title, scire.description]),
-  );
+    creci.department && scire.department ? normalizeText(creci.department) === normalizeText(scire.department) : false;
+  const descriptionSimilarity = jaccardSimilarity(compactParts([creci.title, creci.description]), compactParts([scire.title, scire.description]));
 
   const matches = [cpfMatch, userMatch, departmentMatch, descriptionSimilarity >= threshold].filter(Boolean).length;
 
@@ -544,12 +941,15 @@ function recommendationFor(
   if (classification === 'Obrigação Contratual') {
     return 'Glosar integralmente';
   }
+
   if (classification === 'Duplicidade') {
     return 'Glosar por duplicidade';
   }
+
   if (classification === 'Misto / Revisão Necessária') {
     return 'Glosar parcialmente';
   }
+
   if (
     classification === 'Pendente de Validação' ||
     classification === 'Fora do Escopo Documental Disponível' ||
@@ -558,12 +958,15 @@ function recommendationFor(
   ) {
     return 'Validar administrativamente';
   }
+
   if (classification === 'Melhoria Evolutiva' && billedValue > 0) {
     return 'Pagar';
   }
+
   if (classification === 'Melhoria Evolutiva' && billedValue <= 0) {
     return 'Revisar contrato';
   }
+
   return 'Validar administrativamente';
 }
 
@@ -573,10 +976,12 @@ function sum(items: number[]): number {
 
 function groupCount<T>(items: T[], getName: (item: T) => string): Array<{ name: string; total: number }> {
   const map = new Map<string, number>();
+
   items.forEach((item) => {
     const name = getName(item) || 'Não informado';
     map.set(name, (map.get(name) ?? 0) + 1);
   });
+
   return [...map.entries()]
     .map(([name, total]) => ({ name, total }))
     .sort((left, right) => right.total - left.total)
@@ -614,9 +1019,14 @@ export function runAuditAnalysis(params: {
     .filter((file) => file.status === 'invalid')
     .flatMap((file) => file.warnings.map((warning) => `${file.fileName}: ${warning}`));
 
+  const textlessPdfWarnings = parsedFiles
+    .filter((file) => file.documentType === 'pdf' && file.status === 'parsed' && !normalizeWhitespace(file.textContent))
+    .map((file) => `${file.fileName}: PDF sem texto extraível. Se o arquivo for imagem/escaneado, a análise ficará limitada sem OCR.`);
+
   const limitations = [
     ...alerts,
     ...invalidFileWarnings,
+    ...textlessPdfWarnings,
     ...(!fileGroups.contracts.length
       ? ['Sem documentos contratuais legíveis, a classificação poderá ficar limitada a critérios técnicos e conservadores.']
       : []),
@@ -627,27 +1037,9 @@ export function runAuditAnalysis(params: {
   const scireTickets = extractTickets(fileGroups.scireCalls, 'SCIRE');
   const contractInsights = extractContractInsights(fileGroups.contracts);
   const appliedRate = chooseApplicableHourlyRate(settings, contractInsights);
+  const groups = buildTicketGroups(creciTickets, scireTickets, settings.similarityThreshold);
 
-  const groups = new Map<
-    string,
-    {
-      creci: TicketRecord[];
-      scire: TicketRecord[];
-    }
-  >();
-
-  [...creciTickets, ...scireTickets].forEach((ticket) => {
-    const key = baseKey(ticket);
-    const group = groups.get(key) ?? { creci: [], scire: [] };
-    if (ticket.origin === 'CRECI/PR') {
-      group.creci.push(ticket);
-    } else {
-      group.scire.push(ticket);
-    }
-    groups.set(key, group);
-  });
-
-  const rows: AnalysisRow[] = [...groups.entries()].map(([key, group], index) => {
+  const rows: AnalysisRow[] = groups.map((group, index) => {
     const representative = group.scire[0] ?? group.creci[0];
     const comparison = detectComparison(group.creci, group.scire, settings.similarityThreshold);
     const mergedText = compactParts([
@@ -669,12 +1061,14 @@ export function runAuditAnalysis(params: {
       comparison === 'Ausente no CRECI/PR' ||
       comparison === 'Pendente de validação' ||
       resolution.hasMultipleLinks;
+
     const classification = detectClassification(
       mergedText,
       fileGroups.contracts.length > 0,
       comparison === 'Duplicado',
       hasMissingEvidence,
     );
+
     const confidence = detectConfidence(
       comparison,
       classification,
@@ -684,18 +1078,14 @@ export function runAuditAnalysis(params: {
       representative?.title ?? '',
       representative?.description ?? '',
     );
+
     const scireMinutes = sum(group.scire.map((ticket) => ticket.minutes));
     const creciMinutes = sum(group.creci.map((ticket) => ticket.minutes));
     const timeMinutes = scireMinutes || creciMinutes || representative?.minutes || 0;
     const timeHours = timeMinutes / 60;
     const sourceHourlyRate = group.scire.find((ticket) => ticket.hourlyRate > 0)?.hourlyRate ?? appliedRate;
     const billedValueFromScire = sum(group.scire.map((ticket) => ticket.billedValue));
-    const billedValue =
-      billedValueFromScire > 0
-        ? billedValueFromScire
-        : group.scire.length
-          ? timeHours * sourceHourlyRate
-          : 0;
+    const billedValue = billedValueFromScire > 0 ? billedValueFromScire : group.scire.length ? timeHours * sourceHourlyRate : 0;
 
     let technicalDueValue = 0;
     let simulatedValue = 0;
@@ -708,14 +1098,10 @@ export function runAuditAnalysis(params: {
       }
     }
 
-    if (classification === 'Misto / Revisão Necessária') {
-      technicalDueValue = 0;
-    }
-
     const glosableValue = Math.max(0, billedValue - technicalDueValue);
     const callDate = representative?.openedAt ? formatDate(representative.openedAt) : 'Não informado';
-    const demandOrigin =
-      group.creci.length && group.scire.length ? 'Ambas' : group.scire.length ? 'SCIRE' : 'CRECI/PR';
+    const demandOrigin = group.creci.length && group.scire.length ? 'Ambas' : group.scire.length ? 'SCIRE' : 'CRECI/PR';
+
     const inconsistencies = [
       !validCpf ? 'CPF ausente, inválido ou não verificável' : '',
       comparison === 'Divergente por departamento' ? 'Divergência entre departamento CRECI x SCIRE' : '',
@@ -730,6 +1116,7 @@ export function runAuditAnalysis(params: {
     ]
       .filter(Boolean)
       .join('; ');
+
     const technicalBasis = compactParts([
       classification === 'Obrigação Contratual'
         ? 'Indícios de manutenção corretiva, suporte ou recomposição de funcionalidade'
@@ -740,13 +1127,10 @@ export function runAuditAnalysis(params: {
       classification === 'Misto / Revisão Necessária'
         ? 'Há elementos corretivos e evolutivos no mesmo chamado, exigindo segregação de horas'
         : '',
-      comparison === 'Ausente no CRECI/PR'
-        ? 'Cobrança sem espelho completo na base interna do CRECI/PR'
-        : '',
-      confidence === 'Baixa confiança'
-        ? 'Elementos insuficientes para reconhecimento automático do valor devido'
-        : '',
+      comparison === 'Ausente no CRECI/PR' ? 'Cobrança sem espelho completo na base interna do CRECI/PR' : '',
+      confidence === 'Baixa confiança' ? 'Elementos insuficientes para reconhecimento automático do valor devido' : '',
     ]);
+
     const contractualBasis = compactParts([
       contractInsights.some((item) => item.kind === 'hourly_rate')
         ? `Valor/hora contratual aplicável considerado em ${formatCurrency(appliedRate)}`
@@ -759,10 +1143,11 @@ export function runAuditAnalysis(params: {
         : '',
       !fileGroups.contracts.length ? 'Sem documento contratual legível para vinculação integral do escopo' : '',
     ]);
+
     const recommendation = recommendationFor(classification, confidence, comparison, billedValue);
 
     return {
-      id: key || String(index + 1),
+      id: group.key || String(index + 1),
       period:
         settings.periodStart && settings.periodEnd
           ? `${formatDate(settings.periodStart)} a ${formatDate(settings.periodEnd)}`
@@ -835,10 +1220,7 @@ export function runAuditAnalysis(params: {
   const glosableItems = rows.filter((row) => row.recommendation.includes('Glosar'));
   const pendingItems = rows.filter((row) => row.recommendation === 'Validar administrativamente');
   const divergenceItems = rows.filter(
-    (row) =>
-      row.comparison !== 'Convergente' &&
-      row.comparison !== 'Ausente na SCIRE' &&
-      row.comparison !== 'Ausente no CRECI/PR',
+    (row) => row.comparison !== 'Convergente' && row.comparison !== 'Ausente na SCIRE' && row.comparison !== 'Ausente no CRECI/PR',
   );
   const duplicateItems = rows.filter((row) => row.comparison === 'Duplicado' || row.contractualClassification === 'Duplicidade');
 
@@ -874,9 +1256,9 @@ export function runAuditAnalysis(params: {
     {
       title: 'Metodologia aplicada',
       items: [
-        'Leitura dos arquivos anexados por seção, com extração de dados estruturados e texto livre.',
+        'Leitura dos arquivos anexados por seção, com extração de texto livre e reconstrução heurística de blocos em PDFs.',
         'Cruzamento entre base oficial de usuários, chamados CRECI/PR, chamados SCIRE e documentos contratuais.',
-        'Definição do departamento oficial com prevalência da base CRECI/PR e das redefinições administrativas de CPF.',
+        'Agrupamento por código quando disponível e, na ausência dele, por similaridade entre CPF, data, usuário e conteúdo textual.',
         'Classificação conservadora das demandas entre obrigação contratual, melhoria evolutiva, caso misto, pendência e duplicidade.',
         'Cálculo de valor cobrado, valor tecnicamente devido, valor glosável e valor simulado para itens não faturados.',
       ],
@@ -904,8 +1286,7 @@ export function runAuditAnalysis(params: {
     {
       title: 'Principais divergências e riscos',
       items: divergenceItems.slice(0, 10).map(
-        (row) =>
-          `${row.callCode} — ${row.title}: ${row.comparison}. Inconsistências: ${row.inconsistencies}. Recomendação: ${row.recommendation}.`,
+        (row) => `${row.callCode} — ${row.title}: ${row.comparison}. Inconsistências: ${row.inconsistencies}. Recomendação: ${row.recommendation}.`,
       ),
     },
     {
@@ -917,8 +1298,8 @@ export function runAuditAnalysis(params: {
     {
       title: 'Conclusão técnica consolidada',
       items: [
-        `A análise utilizou critério conservador voltado à proteção do erário, reconhecendo pagamento automático apenas para melhorias evolutivas com suporte documental suficiente.`,
-        `Itens classificados como obrigação contratual, duplicidade, pendência ou caso misto sem segregação foram direcionados para glosa ou validação administrativa.`,
+        'A análise utilizou critério conservador voltado à proteção do erário, reconhecendo pagamento automático apenas para melhorias evolutivas com suporte documental suficiente.',
+        'Itens classificados como obrigação contratual, duplicidade, pendência ou caso misto sem segregação foram direcionados para glosa ou validação administrativa.',
         `Recomenda-se que o CRECI/PR concentre o pagamento nos ${payableItems.length} itens com evidência favorável e priorize a revisão dos ${pendingItems.length} itens pendentes.`,
       ],
     },
@@ -971,7 +1352,7 @@ export function runAuditAnalysis(params: {
     },
     rows,
     processedFiles: parsedFiles,
-    alerts: [...alerts, ...invalidFileWarnings],
+    alerts: [...alerts, ...invalidFileWarnings, ...textlessPdfWarnings],
     limitations,
     dashboard,
     reportSections,
