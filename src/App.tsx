@@ -103,7 +103,7 @@ export default function App() {
   const [savedAnalysisRecords, setSavedAnalysisRecords] = useState<SavedAnalysisRecord[]>(loadSavedAnalysisRecords);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeView, setActiveView] = useState<'import' | 'results' | 'report'>('import');
+  const [activeView, setActiveView] = useState<'import' | 'results' | 'report' | 'executive'>('import');
   const [statusMessage, setStatusMessage] = useState('Pronto para receber arquivos e iniciar uma nova análise.');
   const [staleResults, setStaleResults] = useState(false);
   const [ocrProgress, setOcrProgress] = useState<OcrProgressState | null>(null);
@@ -461,6 +461,9 @@ export default function App() {
         <button type="button" className="button" onClick={() => setActiveView('report')} disabled={!result}>
           Gerar Relatório Técnico
         </button>
+        <button type="button" className="button" onClick={() => setActiveView('executive')} disabled={!result}>
+          Resumo Executivo
+        </button>
         <button type="button" className="button" onClick={() => setActiveView('import')}>
           Voltar à importação
         </button>
@@ -540,6 +543,80 @@ export default function App() {
             </>
           )}
 
+          {activeView === 'executive' && result && (
+            <section className="panel-card executive-full">
+              <div className="panel-card__header">
+                <div>
+                  <h2>Resumo Executivo</h2>
+                  <p>Orientações para decisão administrativa e fiscalizatória com base na auditoria realizada.</p>
+                </div>
+              </div>
+
+              <ul className="side-list executive-full__list">
+                {result.executiveSummary.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+
+              <div className="summary-mini-grid executive-full__grid">
+                <article className="summary-mini-card">
+                  <span>Itens pagáveis</span>
+                  <strong>{result.payableItems.length}</strong>
+                </article>
+                <article className="summary-mini-card">
+                  <span>Itens glosáveis</span>
+                  <strong>{result.glosableItems.length}</strong>
+                </article>
+                <article className="summary-mini-card">
+                  <span>Pendentes</span>
+                  <strong>{result.pendingItems.length}</strong>
+                </article>
+                <article className="summary-mini-card">
+                  <span>Divergências</span>
+                  <strong>{result.divergenceItems.length}</strong>
+                </article>
+              </div>
+
+              <div className="side-section">
+                <h3>Memória de cálculo</h3>
+                <ul className="side-list">
+                  {result.calculationMemo.map((entry) => (
+                    <li key={entry.title}>
+                      <strong>{entry.title}:</strong> {entry.formula} = {entry.result}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="side-section">
+                <h3>Alertas e limitações</h3>
+                <ul className="side-list">
+                  {[...result.alerts, ...parsedFileAlerts].slice(0, 20).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                  {!result.alerts.length && !parsedFileAlerts.length && (
+                    <li>Nenhum alerta adicional relevante identificado na análise atual.</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="side-section">
+                <h3>Documentos contratuais identificados</h3>
+                <ul className="side-list">
+                  {result.contractInsights.map((item) => (
+                    <li key={`${item.sourceFile}-${item.label}-${item.excerpt}`}>
+                      <strong>{item.label}</strong> — {item.sourceFile}
+                      {item.excerpt && <span className="excerpt-text"> "{item.excerpt}"</span>}
+                    </li>
+                  ))}
+                  {!result.contractInsights.length && (
+                    <li>Nenhum trecho contratual estruturado foi identificado nos arquivos atuais.</li>
+                  )}
+                </ul>
+              </div>
+            </section>
+          )}
+
           {activeView === 'report' && result && <ReportView result={result} />}
         </div>
 
@@ -547,19 +624,13 @@ export default function App() {
           <section className="panel-card">
             <div className="panel-card__header">
               <div>
-                <h2>Resumo executivo</h2>
-                <p>Orientações rápidas para decisão administrativa e fiscalizatória.</p>
+                <h2>Painel de status</h2>
+                <p>Visão geral da análise em andamento.</p>
               </div>
             </div>
 
             {result ? (
               <>
-                <ul className="side-list">
-                  {result.executiveSummary.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-
                 <div className="summary-mini-grid">
                   <article className="summary-mini-card">
                     <span>Itens pagáveis</span>
@@ -580,41 +651,25 @@ export default function App() {
                 </div>
 
                 <div className="side-section">
-                  <h3>Memória de cálculo</h3>
+                  <h3>Alertas</h3>
                   <ul className="side-list">
-                    {result.calculationMemo.map((entry) => (
-                      <li key={entry.title}>
-                        <strong>{entry.title}:</strong> {entry.formula} = {entry.result}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="side-section">
-                  <h3>Alertas e limitações</h3>
-                  <ul className="side-list">
-                    {[...result.alerts, ...parsedFileAlerts].slice(0, 12).map((item) => (
+                    {[...result.alerts, ...parsedFileAlerts].slice(0, 10).map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                     {!result.alerts.length && !parsedFileAlerts.length && (
-                      <li>Nenhum alerta adicional relevante identificado na análise atual.</li>
+                      <li>Nenhum alerta identificado.</li>
                     )}
                   </ul>
                 </div>
 
-                <div className="side-section">
-                  <h3>Documentos contratuais identificados</h3>
-                  <ul className="side-list">
-                    {result.contractInsights.slice(0, 10).map((item) => (
-                      <li key={`${item.sourceFile}-${item.label}-${item.excerpt}`}>
-                        <strong>{item.label}</strong> — {item.sourceFile}
-                      </li>
-                    ))}
-                    {!result.contractInsights.length && (
-                      <li>Nenhum trecho contratual estruturado foi identificado nos arquivos atuais.</li>
-                    )}
-                  </ul>
-                </div>
+                <button
+                  type="button"
+                  className="button button--primary"
+                  style={{ marginTop: '12px', width: '100%' }}
+                  onClick={() => setActiveView('executive')}
+                >
+                  Ver Resumo Executivo completo
+                </button>
               </>
             ) : (
               <div className="empty-state">

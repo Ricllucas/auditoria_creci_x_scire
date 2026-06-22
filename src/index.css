@@ -388,6 +388,30 @@ button {
   font-style: italic;
 }
 
+.executive-full {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.executive-full__list {
+  font-size: 0.95rem;
+}
+
+.executive-full__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.excerpt-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: #555;
+  font-style: italic;
+}
+
 .form-grid,
 .filters-grid,
 .risk-list,

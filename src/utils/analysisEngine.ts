@@ -1097,11 +1097,15 @@ function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
 }
 
 function extractTickets(files: ParsedInputFile[], origin: TicketRecord['origin']): TicketRecord[] {
+  // For files already parsed as spreadsheets (rows present), skip text extraction to avoid double-counting.
+  // Text extraction is only used for PDFs and other files where no structured rows were produced.
   const textRows = files.flatMap((file) =>
-    extractTicketRowsFromText(file).map((row) => ({
-      sourceFile: file.fileName,
-      row,
-    })),
+    (file.rows ?? []).length > 0
+      ? []
+      : extractTicketRowsFromText(file).map((row) => ({
+          sourceFile: file.fileName,
+          row,
+        })),
   );
 
   const tabularRows = files.flatMap((file) =>
