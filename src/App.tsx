@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CpfOverridesTable } from './components/CpfOverridesTable';
 import { Dashboard } from './components/Dashboard';
 import { FileSection } from './components/FileSection';
 import { ReportView } from './components/ReportView';
@@ -97,7 +96,7 @@ export default function App() {
   const [settings, setSettings] = useState<AnalysisSettings>(() =>
     safeJsonParse(localStorage.getItem(STORAGE_KEYS.settings), DEFAULT_SETTINGS),
   );
-  const [overrides, setOverrides] = useState<CpfOverrideRule[]>(() =>
+  const [overrides] = useState<CpfOverrideRule[]>(() =>
     safeJsonParse(localStorage.getItem(STORAGE_KEYS.overrides), DEFAULT_OVERRIDES),
   );
   const [savedAnalysisRecords, setSavedAnalysisRecords] = useState<SavedAnalysisRecord[]>(loadSavedAnalysisRecords);
@@ -111,10 +110,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
   }, [settings]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.overrides, JSON.stringify(overrides));
-  }, [overrides]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.savedAnalyses, JSON.stringify(savedAnalysisRecords));
@@ -532,7 +527,7 @@ export default function App() {
                 })}
               </div>
 
-              <CpfOverridesTable rules={overrides} onChange={setOverrides} />
+
             </>
           )}
 
