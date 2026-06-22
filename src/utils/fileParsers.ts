@@ -353,15 +353,49 @@ function isTotalizerRow(row: MatrixRow): boolean {
   return row.slice(0, 2).some((cell) => TOTALIZER_PATTERNS.some((pattern) => pattern.test(cell.trim())));
 }
 
+function addMinuteStrings(a: string, b: string): string {
+  const parse = (s: string): number => {
+    const cleaned = s.trim().replace(/\.(?=\d{3}(?:\D|$))/g, '').replace(',', '.');
+    return Number(cleaned) || 0;
+  };
+  return String(parse(a) + parse(b));
+}
+
 function parseRowsByTemplate(
   matrix: MatrixRow[],
   template: SpreadsheetTemplate,
   startRowIndex: number,
   sheetName: string,
 ): ParsedInputRow[] {
-  return matrix
-    .slice(startRowIndex)
-    .filter((row) => !isTotalizerRow(row))
+  const isCallTemplate = template.sectionIds.some((id) => (CALL_SECTION_IDS as string[]).includes(id));
+  const minutesColIndex = isCallTemplate ? template.dataKinds.lastIndexOf('number') : -1;
+
+  const processedRows: MatrixRow[] = [];
+
+  for (const row of matrix.slice(startRowIndex)) {
+    if (isTotalizerRow(row)) continue;
+
+    const col0 = (row[0] ?? '').trim();
+
+    if (isCallTemplate && !col0) {
+      // Linha de continuação de descrição — sem novo código de suporte.
+      // Acumula seus minutos no chamado anterior em vez de criar um registro extra.
+      if (processedRows.length > 0 && minutesColIndex >= 0) {
+        const prev = processedRows[processedRows.length - 1];
+        const updated = [...prev] as MatrixRow;
+        updated[minutesColIndex] = addMinuteStrings(
+          (prev[minutesColIndex] ?? '').toString(),
+          (row[minutesColIndex] ?? '').toString(),
+        );
+        processedRows[processedRows.length - 1] = updated;
+      }
+      continue;
+    }
+
+    processedRows.push([...row] as MatrixRow);
+  }
+
+  return processedRows
     .filter((row) => scoreDataRow(row, template) >= template.minimumDataScore)
     .map((row) => createRowFromTemplate(row, template, sheetName));
 }
