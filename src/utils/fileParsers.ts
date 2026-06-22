@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import mammoth from 'mammoth/mammoth.browser';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { ParsedInputFile, ParsedInputRow, UploadFileItem, UploadSectionId } from '../types';
+import { OcrProgressState, ParsedInputFile, ParsedInputRow, UploadFileItem, UploadSectionId } from '../types';
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -18,11 +18,20 @@ type OcrWorker = {
 };
 
 type TesseractModule = {
-  createWorker: (languages?: string) => Promise<OcrWorker>;
+  createWorker: (languages?: string, oem?: number, options?: { logger?: (message: OcrLoggerMessage) => void }) => Promise<OcrWorker>;
 };
 
 let ocrWorkerPromise: Promise<OcrWorker> | null = null;
 let ocrQueue: Promise<void> = Promise.resolve();
+
+type OcrLoggerMessage = {
+  progress: number;
+  status: string;
+};
+
+type ParseFileOptions = {
+  onOcrProgress?: (state: OcrProgressState | null) => void;
+};
 
 function stringifyRowValue(value: unknown): string {
   if (value === null || value === undefined) {
@@ -147,11 +156,11 @@ function shouldRunOcrOnText(text: string): boolean {
   return alphaNumericCount < 40 || wordCount < 10;
 }
 
-async function getOcrWorker(): Promise<OcrWorker> {
+async function getOcrWorker(logger?: (message: OcrLoggerMessage) => void): Promise<OcrWorker> {
   if (!ocrWorkerPromise) {
     ocrWorkerPromise = import('tesseract.js').then(async (tesseractModule) => {
       const module = tesseractModule as unknown as TesseractModule;
-      return module.createWorker('por+eng');
+      return module.createWorker('por+eng', undefined, logger ? { logger } : undefined);
     });
   }
 
@@ -199,16 +208,20 @@ async function runOcrOnPdfPage(page: {
   render: (params: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => {
     promise: Promise<void>;
   };
-}): Promise<string> {
+}, logger?: (message: OcrLoggerMessage) => void): Promise<string> {
   return runQueuedOcr(async () => {
-    const worker = await getOcrWorker();
+    const worker = await getOcrWorker(logger);
     const canvas = await renderPdfPageToCanvas(page);
     const result = await worker.recognize(canvas);
     return cleanPdfText(result.data.text);
   });
 }
 
-async function parsePdf(file: File): Promise<{ text: string; pageCount: number; warnings: string[] }> {
+async function parsePdf(
+  file: File,
+  sectionId: UploadSectionId,
+  options?: ParseFileOptions,
+): Promise<{ text: string; pageCount: number; warnings: string[] }> {
   const buffer = await file.arrayBuffer();
   const pdf = await getDocument({ data: buffer }).promise;
   const pageTexts: string[] = [];
@@ -226,7 +239,17 @@ async function parsePdf(file: File): Promise<{ text: string; pageCount: number; 
     }
 
     try {
-      const ocrText = await runOcrOnPdfPage(page as never);
+      const ocrText = await runOcrOnPdfPage(page as never, (message) => {
+        options?.onOcrProgress?.({
+          sectionId,
+          fileName: file.name,
+          page: index,
+          totalPages: pdf.numPages,
+          progress: message.progress,
+          overallProgress: ((index - 1) + message.progress) / pdf.numPages,
+          status: message.status,
+        });
+      });
       if (ocrText) {
         usedOcrPages += 1;
         pageTexts.push(ocrText);
@@ -238,6 +261,8 @@ async function parsePdf(file: File): Promise<{ text: string; pageCount: number; 
 
     pageTexts.push(extractedText);
   }
+
+  options?.onOcrProgress?.(null);
 
   const warnings: string[] = [];
   if (usedOcrPages > 0) {
@@ -296,6 +321,7 @@ function detectDocumentType(extension: string): ParsedInputFile['documentType'] 
 export async function parseUploadedFiles(
   sectionId: UploadSectionId,
   files: UploadFileItem[],
+  options?: ParseFileOptions,
 ): Promise<ParsedInputFile[]> {
   const parsedFiles = await Promise.all(
     files.map(async (item) => {
@@ -340,7 +366,7 @@ export async function parseUploadedFiles(
         }
 
         if (documentType === 'pdf') {
-          const { text, pageCount, warnings: pdfWarnings } = await parsePdf(item.file);
+          const { text, pageCount, warnings: pdfWarnings } = await parsePdf(item.file, sectionId, options);
           return {
             fileId: item.id,
             sectionId,

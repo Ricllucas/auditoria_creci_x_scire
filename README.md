@@ -16,6 +16,7 @@ Aplicativo web **100% frontend** para auditoria técnica, contratual, operaciona
 - Upload por quatro seções independentes
 - Leitura de `PDF`, `XLS`, `XLSX`, `CSV` e `DOCX`
 - OCR automático para PDFs escaneados com baixa extração textual
+- Barra de progresso durante o OCR de PDFs escaneados
 - Tabela editável de redefinições administrativas de CPF
 - Cruzamento entre bases CRECI/PR, SCIRE e documentos contratuais
 - Classificação contratual automática

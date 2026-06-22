@@ -70,6 +70,16 @@ export interface ParsedInputFile {
   pageCount?: number;
 }
 
+export interface OcrProgressState {
+  sectionId: UploadSectionId;
+  fileName: string;
+  page: number;
+  totalPages: number;
+  progress: number;
+  overallProgress: number;
+  status: string;
+}
+
 export interface CpfOverrideRule {
   id: string;
   cpf: string;

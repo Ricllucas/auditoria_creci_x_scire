@@ -12,6 +12,7 @@ import {
   AnalysisSettings,
   AnalysisSnapshot,
   CpfOverrideRule,
+  OcrProgressState,
   SavedAnalysisRecord,
   SavedAnalysisSummary,
   UploadFileItem,
@@ -96,6 +97,7 @@ export default function App() {
   const [activeView, setActiveView] = useState<'import' | 'results' | 'report'>('import');
   const [statusMessage, setStatusMessage] = useState('Pronto para receber arquivos e iniciar uma nova análise.');
   const [staleResults, setStaleResults] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState<OcrProgressState | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
@@ -202,10 +204,17 @@ export default function App() {
 
   const processAnalysis = async () => {
     setIsProcessing(true);
+    setOcrProgress(null);
     setStatusMessage('Processando arquivos, extraindo dados e cruzando evidências...');
 
     try {
-      const parsedGroups = await Promise.all(sections.map((section) => parseUploadedFiles(section.id, section.files)));
+      const parsedGroups = await Promise.all(
+        sections.map((section) =>
+          parseUploadedFiles(section.id, section.files, {
+            onOcrProgress: setOcrProgress,
+          }),
+        ),
+      );
       const parsedFiles = parsedGroups.flat();
       const analysis = runAuditAnalysis({
         sections,
@@ -222,6 +231,7 @@ export default function App() {
       const message = error instanceof Error ? error.message : 'Erro desconhecido durante a análise.';
       setStatusMessage(`Falha ao executar a análise: ${message}`);
     } finally {
+      setOcrProgress(null);
       setIsProcessing(false);
     }
   };
@@ -404,6 +414,26 @@ export default function App() {
         <strong>{statusMessage}</strong>
         {staleResults && <span>Os resultados anteriores não devem ser considerados definitivos até novo processamento.</span>}
       </section>
+
+      {isProcessing && ocrProgress && (
+        <section className="ocr-progress-card">
+          <div className="ocr-progress-card__header">
+            <div>
+              <strong>OCR em andamento</strong>
+              <span>
+                {ocrProgress.fileName} · página {ocrProgress.page} de {ocrProgress.totalPages}
+              </span>
+            </div>
+            <strong>{Math.round(ocrProgress.overallProgress * 100)}%</strong>
+          </div>
+          <div className="ocr-progress-bar" aria-hidden="true">
+            <div className="ocr-progress-bar__fill" style={{ width: `${Math.max(2, Math.round(ocrProgress.overallProgress * 100))}%` }} />
+          </div>
+          <small className="ocr-progress-card__status">
+            {ocrProgress.status} ({Math.round(ocrProgress.progress * 100)}% da página atual)
+          </small>
+        </section>
+      )}
 
       <div className="layout-grid">
         <div className="layout-main">
