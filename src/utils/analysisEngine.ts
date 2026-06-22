@@ -212,7 +212,7 @@ function extractDateFromText(text: string): string {
 function extractStatusFromText(text: string): string {
   return extractByPatterns(text, [
     /(?:status|situacao|situação|estado)\s*[:\-]?\s*([^\n]{3,60})/i,
-    /\b(aberto|aberta|fechado|fechada|encerrado|encerrada|concluido|concluído|concluida|concluída|pendente|em andamento|em analise|em análise|cancelado|cancelada)\b/i,
+    /\b(aberto|aberta|fechado|fechada|encerrado|encerrada|concluido|concluído|concluida|concluída|pendente|em andamento|em analise|em análise|cancelado|cancelada|suporte)\b/i,
   ]);
 }
 
@@ -254,6 +254,7 @@ function extractCodeFromText(text: string): string {
   return extractByPatterns(text, [
     /(?:codigo|código|chamado|ticket|protocolo|id)\s*(?:n(?:o|º|°|úmero|umero)?)?\s*[:#-]?\s*([A-Z0-9._/-]{3,})/i,
     /\b((?:OS|REQ|INC|CH|TKT)[-_/.]?\d{2,})\b/i,
+    /\b([A-Z]{2,10}\s*-\s*\d{2,3})\b/i,
   ]);
 }
 
@@ -381,7 +382,189 @@ function compactParts(parts: Array<string | undefined | null>): string {
     .join(' | ');
 }
 
+function inferDepartmentFromContext(value: string): string {
+  const normalized = normalizeText(value);
+
+  if (normalized.includes('procuradoria fiscal')) {
+    return 'Procuradoria Fiscal';
+  }
+
+  if (normalized.includes('fiscalizacao')) {
+    return 'Fiscalização';
+  }
+
+  if (normalized.includes('processos disciplinares') || normalized.includes('processos disciplina')) {
+    return 'Processos Disciplinares';
+  }
+
+  if (normalized.includes('sead')) {
+    return 'SEAD';
+  }
+
+  if (normalized.includes('ouvidoria')) {
+    return 'Ouvidoria';
+  }
+
+  if (normalized.includes('juridico')) {
+    return 'Jurídico';
+  }
+
+  if (normalized.includes('secretaria')) {
+    return 'Secretaria';
+  }
+
+  return '';
+}
+
+function dedupeRows(rows: ParsedInputRow[]): ParsedInputRow[] {
+  return uniqueBy(rows, (row) =>
+    [
+      String(row.codigo ?? '').trim(),
+      String(row.cpf ?? '').trim(),
+      normalizeText(String(row.titulo ?? '')),
+      normalizeText(String(row.descricao ?? '')).slice(0, 120),
+      String(row.data ?? '').trim(),
+    ].join('|'),
+  );
+}
+
+function trimTrailingText(text: string, suffix: string): string {
+  if (!suffix) {
+    return text.trim();
+  }
+
+  const normalizedText = normalizeText(text);
+  const normalizedSuffix = normalizeText(suffix);
+  if (normalizedText.endsWith(normalizedSuffix)) {
+    return text.slice(0, Math.max(0, text.length - suffix.length)).trim();
+  }
+
+  return text.trim();
+}
+
+function extractSequentialCodeTitleDateRows(file: ParsedInputFile): ParsedInputRow[] {
+  const normalized = normalizeWhitespace(file.textContent);
+  const matches = [...normalized.matchAll(/\b(\d{3,6})\s+([\s\S]+?)\s+(\d{2}\/\d{2}\/\d{4})(?=\s+\d{3,6}\s+|$)/g)];
+  if (matches.length < 2) {
+    return [];
+  }
+
+  const inferredDepartment = inferDepartmentFromContext(`${file.fileName}\n${normalized.slice(0, 400)}`);
+
+  return matches.map((match) => ({
+    codigo: cleanExtractedValue(match[1]),
+    titulo: cleanExtractedValue(match[2]),
+    descricao: cleanExtractedValue(match[2]),
+    data: cleanExtractedValue(match[3]),
+    departamento: inferredDepartment,
+    _rawText: cleanExtractedValue(match[0]),
+  }));
+}
+
+function extractSequentialCodeTitleDateTimeUserStatusRows(file: ParsedInputFile): ParsedInputRow[] {
+  const normalized = normalizeWhitespace(file.textContent);
+  const matches = [
+    ...normalized.matchAll(
+      /\b(\d{3,6})\s+([\s\S]+?)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2})\s+([A-ZÀ-Ý][A-ZÀ-Ý\s]{2,50}?)\s+(SUPORTE|ABERTO|ABERTA|FECHADO|FECHADA|PENDENTE|CONCLUIDO|CONCLUÍDO|EM ANDAMENTO)(?=\s+\d{3,6}\s+|$)/giu,
+    ),
+  ];
+
+  if (!matches.length) {
+    return [];
+  }
+
+  const inferredDepartment = inferDepartmentFromContext(`${file.fileName}\n${normalized.slice(0, 400)}`);
+
+  return matches.map((match) => ({
+    codigo: cleanExtractedValue(match[1]),
+    titulo: cleanExtractedValue(match[2]),
+    descricao: cleanExtractedValue(match[2]),
+    data: `${cleanExtractedValue(match[3])} ${cleanExtractedValue(match[4])}`,
+    usuario: cleanExtractedValue(match[5]),
+    status: cleanExtractedValue(match[6]),
+    departamento: inferredDepartment,
+    _rawText: cleanExtractedValue(match[0]),
+  }));
+}
+
+function extractDemandReferenceRows(file: ParsedInputFile): ParsedInputRow[] {
+  const normalized = normalizeWhitespace(file.textContent);
+  const matches = [...normalized.matchAll(/\b([A-Z]{2,10}\s*-\s*\d{2,3})\s+([\s\S]*?)(?=\b[A-Z]{2,10}\s*-\s*\d{2,3}\b|$)/g)];
+  if (!matches.length) {
+    return [];
+  }
+
+  return matches.map((match) => {
+    const chunk = cleanExtractedValue(match[2]);
+    const status =
+      extractByPatterns(chunk, [
+        /(Decidiu\s*-\s*se\s+por\s+nao\s+Implementar)$/i,
+        /(Decidiu\s*-\s*se\s+por\s+não\s+Implementar)$/i,
+        /(Implementada|Implementado|Pendente|Em andamento)$/i,
+      ]) || 'Não informado';
+    const origin =
+      extractByPatterns(chunk, [
+        /(Reuniao presencial\/virtual|Reunião presencial\/virtual|Reuniao presencial|Reunião presencial|Homologacao\/Testes|Homologação\/Testes|Homologacao|Homologação|Testes)/i,
+      ]) || '';
+    const description = trimTrailingText(trimTrailingText(chunk, status), origin);
+    const title = description.split(/\s+/).slice(0, 8).join(' ');
+
+    return {
+      codigo: cleanExtractedValue(match[1]),
+      titulo: cleanExtractedValue(title),
+      descricao: cleanExtractedValue(description),
+      status: cleanExtractedValue(status),
+      departamento: inferDepartmentFromContext(`${file.fileName}\n${chunk}`),
+      _origemSolicitacao: cleanExtractedValue(origin),
+      _rawText: cleanExtractedValue(match[0]),
+    };
+  });
+}
+
+function extractCompactUserDirectoryRows(file: ParsedInputFile): ParsedInputRow[] {
+  const normalized = normalizeWhitespace(file.textContent);
+  const matches = [
+    ...normalized.matchAll(
+      /(\d{3}[.\s]?\d{3}[.\s]?\d{3}\s*-\s*\d{2}|\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2})\s+([\s\S]*?)(?=(?:\d{3}[.\s]?\d{3}[.\s]?\d{3}\s*-\s*\d{2}|\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2})|$)/g,
+    ),
+  ];
+
+  if (!matches.length) {
+    return [];
+  }
+
+  const knownDepartments = [
+    'Processos Disciplinares',
+    'Procuradoria Fiscal',
+    'Fiscalização',
+    'Ouvidoria',
+    'Secretaria',
+    'Jurídico',
+    'SEAD',
+  ];
+
+  return matches.map((match) => {
+    const remainder = cleanExtractedValue(match[2]);
+    const department =
+      knownDepartments.find((item) => normalizeText(remainder).endsWith(normalizeText(item))) ||
+      inferDepartmentFromContext(remainder);
+    const userName = department ? remainder.slice(0, Math.max(0, remainder.length - department.length)).trim() : remainder;
+
+    return {
+      cpf: cleanExtractedValue(match[1]),
+      usuario: cleanExtractedValue(userName),
+      departamento: cleanExtractedValue(department),
+      _rawText: cleanExtractedValue(match[0]),
+    };
+  });
+}
+
 function extractDirectoryRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
+  const compactRows = extractCompactUserDirectoryRows(file);
+  if (compactRows.length > 1) {
+    return dedupeRows(compactRows);
+  }
+
   const rows: ParsedInputRow[] = [];
 
   splitTextIntoBlocks(file.textContent, /\b\d{3}[.\s]?\d{3}[.\s]?\d{3}[-\s]?\d{2}\b/).forEach((block) => {
@@ -390,7 +573,7 @@ function extractDirectoryRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
       return;
     }
 
-    const department = extractDepartmentFromText(block);
+    const department = extractDepartmentFromText(block) || inferDepartmentFromContext(`${file.fileName}\n${block}`);
     const sector = extractSectorFromText(block);
     const userName = extractPersonFromText(block) || extractTitleFromText(block);
 
@@ -403,58 +586,70 @@ function extractDirectoryRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
     });
   });
 
-  return rows;
+  return dedupeRows(rows);
 }
 
 function extractTicketRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
-  return splitTextIntoBlocks(
-    file.textContent,
-    /(?:codigo|código|chamado|ticket|protocolo|cpf|solicitante|usuario|usuário|titulo|título|assunto|demanda|descricao|descrição|status)/i,
-  )
-    .map((block) => {
-      const normalizedBlock = normalizeWhitespace(block);
-      if (!normalizedBlock) {
-        return null;
-      }
+  const structuredRows = dedupeRows([
+    ...extractSequentialCodeTitleDateTimeUserStatusRows(file),
+    ...extractSequentialCodeTitleDateRows(file),
+    ...extractDemandReferenceRows(file),
+  ]);
 
-      const row: ParsedInputRow = {
-        codigo: extractCodeFromText(normalizedBlock),
-        titulo: extractTitleFromText(normalizedBlock),
-        descricao: extractDescriptionFromText(normalizedBlock),
-        data: extractDateFromText(normalizedBlock),
-        status: extractStatusFromText(normalizedBlock),
-        cpf: extractCpfFromText(normalizedBlock),
-        usuario: extractPersonFromText(normalizedBlock),
-        departamento: extractDepartmentFromText(normalizedBlock),
-        setor: extractSectorFromText(normalizedBlock),
-        minutos: extractMinutesText(normalizedBlock),
-        horas: extractHoursText(normalizedBlock),
-        'valor hora': extractHourlyRateText(normalizedBlock),
-        'valor cobrado': extractBilledValueText(normalizedBlock),
-        _rawText: normalizedBlock,
-      };
+  if (structuredRows.length > 1) {
+    return structuredRows;
+  }
 
-      const evidenceCount = [
-        row.codigo,
-        row.cpf,
-        row.usuario,
-        row.departamento,
-        row.data,
-        row.status,
-        row.minutos,
-        row['valor cobrado'],
-      ].filter(Boolean).length;
+  return dedupeRows(
+    splitTextIntoBlocks(
+      file.textContent,
+      /(?:codigo|código|chamado|ticket|protocolo|cpf|solicitante|usuario|usuário|titulo|título|assunto|demanda|descricao|descrição|status)/i,
+    )
+      .map((block) => {
+        const normalizedBlock = normalizeWhitespace(block);
+        if (!normalizedBlock) {
+          return null;
+        }
 
-      const title = String(row.titulo ?? '');
-      const description = String(row.descricao ?? '');
+        const row: ParsedInputRow = {
+          codigo: extractCodeFromText(normalizedBlock),
+          titulo: extractTitleFromText(normalizedBlock),
+          descricao: extractDescriptionFromText(normalizedBlock),
+          data: extractDateFromText(normalizedBlock),
+          status: extractStatusFromText(normalizedBlock),
+          cpf: extractCpfFromText(normalizedBlock),
+          usuario: extractPersonFromText(normalizedBlock),
+          departamento: extractDepartmentFromText(normalizedBlock) || inferDepartmentFromContext(`${file.fileName}\n${normalizedBlock}`),
+          setor: extractSectorFromText(normalizedBlock),
+          minutos: extractMinutesText(normalizedBlock),
+          horas: extractHoursText(normalizedBlock),
+          'valor hora': extractHourlyRateText(normalizedBlock),
+          'valor cobrado': extractBilledValueText(normalizedBlock),
+          _rawText: normalizedBlock,
+        };
 
-      if (evidenceCount === 0 && title.length < 12 && description.length < 30) {
-        return null;
-      }
+        const evidenceCount = [
+          row.codigo,
+          row.cpf,
+          row.usuario,
+          row.departamento,
+          row.data,
+          row.status,
+          row.minutos,
+          row['valor cobrado'],
+        ].filter(Boolean).length;
 
-      return row;
-    })
-    .filter((row): row is ParsedInputRow => Boolean(row));
+        const title = String(row.titulo ?? '');
+        const description = String(row.descricao ?? '');
+
+        if (evidenceCount === 0 && title.length < 12 && description.length < 30) {
+          return null;
+        }
+
+        return row;
+      })
+      .filter((row): row is ParsedInputRow => Boolean(row)),
+  );
 }
 
 function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
@@ -511,7 +706,10 @@ function extractTickets(files: ParsedInputFile[], origin: TicketRecord['origin']
       const status = firstFilled(row, ['status', 'situação', 'situacao', 'estado']) || extractStatusFromText(rawText);
       const cpfRaw = firstFilled(row, ['cpf', 'documento', 'doc']) || extractCpfFromText(rawText);
       const userName = firstFilled(row, ['usuario', 'usuário', 'solicitante', 'nome']) || extractPersonFromText(rawText);
-      const department = firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia']) || extractDepartmentFromText(rawText);
+      const department =
+        firstFilled(row, ['departamento', 'depto', 'area', 'área', 'gerencia']) ||
+        extractDepartmentFromText(rawText) ||
+        inferDepartmentFromContext(`${sourceFile}\n${rawText}`);
       const sector = firstFilled(row, ['setor', 'secao', 'seção']) || extractSectorFromText(rawText);
       const minutes = parseMinutes(
         firstFilled(row, ['minutos', 'tempo', 'tempo tecnico', 'tempo técnico', 'duracao', 'duração']) ||
@@ -1056,7 +1254,7 @@ export function runAuditAnalysis(params: {
     const hasMissingEvidence =
       !representative?.description ||
       !representative?.title ||
-      !representative?.minutes ||
+      (!representative?.minutes && group.scire.length > 0) ||
       !validCpf ||
       comparison === 'Ausente no CRECI/PR' ||
       comparison === 'Pendente de validação' ||
@@ -1102,6 +1300,7 @@ export function runAuditAnalysis(params: {
     const callDate = representative?.openedAt ? formatDate(representative.openedAt) : 'Não informado';
     const demandOrigin = group.creci.length && group.scire.length ? 'Ambas' : group.scire.length ? 'SCIRE' : 'CRECI/PR';
 
+    const probableDepartment = resolution.probableDepartment || representative?.department || '';
     const inconsistencies = [
       !validCpf ? 'CPF ausente, inválido ou não verificável' : '',
       comparison === 'Divergente por departamento' ? 'Divergência entre departamento CRECI x SCIRE' : '',
@@ -1112,6 +1311,7 @@ export function runAuditAnalysis(params: {
       comparison === 'Ausente na SCIRE' ? 'Registro interno sem apresentação correspondente na SCIRE' : '',
       comparison === 'Duplicado' ? 'Possível duplicidade ou fragmentação artificial' : '',
       resolution.hasMultipleLinks ? 'CPF com múltiplo vínculo não resolvido' : '',
+      !resolution.department && probableDepartment ? `Departamento provável identificado: ${probableDepartment}` : '',
       classification === 'Fora do Escopo Documental Disponível' ? 'Escopo contratual insuficiente para conclusão' : '',
     ]
       .filter(Boolean)
@@ -1195,8 +1395,9 @@ export function runAuditAnalysis(params: {
       observations: compactParts([
         group.creci.length > 1 || group.scire.length > 1 ? 'Há múltiplos registros associados ao mesmo agrupamento.' : '',
         representative?.rawValues._planilha ? `Planilha de origem: ${String(representative.rawValues._planilha)}` : '',
+        representative?.rawValues._origemSolicitacao ? `Origem informada: ${String(representative.rawValues._origemSolicitacao)}` : '',
       ]),
-      probableDepartment: resolution.probableDepartment || representative?.department || '',
+      probableDepartment,
     };
   });
 
@@ -1256,7 +1457,7 @@ export function runAuditAnalysis(params: {
     {
       title: 'Metodologia aplicada',
       items: [
-        'Leitura dos arquivos anexados por seção, com extração de texto livre e reconstrução heurística de blocos em PDFs.',
+        'Leitura dos arquivos anexados por seção, com extração de texto livre, OCR para PDFs escaneados e heurísticas específicas para listas tabulares em PDF.',
         'Cruzamento entre base oficial de usuários, chamados CRECI/PR, chamados SCIRE e documentos contratuais.',
         'Agrupamento por código quando disponível e, na ausência dele, por similaridade entre CPF, data, usuário e conteúdo textual.',
         'Classificação conservadora das demandas entre obrigação contratual, melhoria evolutiva, caso misto, pendência e duplicidade.',
