@@ -537,14 +537,21 @@ function classifyByRules(params: {
 
   if (group.creci.length > 1 || group.scire.length > 1 || comparison === 'Duplicado') {
     classification = 'Duplicidade';
-  } else if (hasMissingEvidence) {
-    classification = 'Pendente de Validação';
   } else if (improvementWeight > 0 && contractualWeight > 0) {
-    classification = 'Misto / Revisão Necessária';
-  } else if (improvementWeight > contractualWeight && improvementWeight > 0) {
+    const dominanceRatio =
+      Math.max(improvementWeight, contractualWeight) / Math.min(improvementWeight, contractualWeight);
+    if (dominanceRatio >= 2) {
+      classification =
+        improvementWeight > contractualWeight ? 'Melhoria Evolutiva' : 'Obrigação Contratual';
+    } else {
+      classification = 'Misto / Revisão Necessária';
+    }
+  } else if (improvementWeight > 0) {
     classification = 'Melhoria Evolutiva';
   } else if (contractualWeight > 0) {
     classification = 'Obrigação Contratual';
+  } else if (hasMissingEvidence) {
+    classification = 'Pendente de Validação';
   } else if (!hasContracts) {
     classification = 'Fora do Escopo Documental Disponível';
   } else {
@@ -666,14 +673,8 @@ function buildAuditGroups(params: {
     const cpf = representative?.cpf ?? '';
     const validCpf = isValidCpf(cpf);
     const resolution = resolveOfficialDepartment(cpf, userDirectory, overrides);
-    const hasMissingEvidence =
-      !representative?.description ||
-      !representative?.title ||
-      (!representative?.minutes && group.scire.length > 0) ||
-      !validCpf ||
-      comparison === 'Ausente no CRECI/PR' ||
-      comparison === 'Pendente de validação' ||
-      resolution.hasMultipleLinks;
+    const hasNoDescription = !representative?.description && !representative?.title;
+    const hasMissingEvidence = hasNoDescription;
 
     const ruleClassification = classifyByRules({
       normalizedDescription,
