@@ -340,10 +340,11 @@ function createRowFromTemplate(row: MatrixRow, template: SpreadsheetTemplate, sh
 }
 
 const TOTALIZER_PATTERNS = [
-  /^total\s+em\s+horas?$/i,
-  /^total\s+para\s+faturamento$/i,
-  /^total\s+geral$/i,
-  /^grand\s*total$/i,
+  /^total\s+em\s+horas?/i,
+  /^total\s+em\s+minutos?/i,
+  /^total\s+para\s+faturamento/i,
+  /^total\s+geral/i,
+  /^grand\s*total/i,
   /^subtotal$/i,
 ];
 

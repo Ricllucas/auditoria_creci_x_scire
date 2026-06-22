@@ -22,18 +22,15 @@ const COLORS = ['#1f4b99', '#3b7f4f', '#b8791c', '#8b3d3d', '#6c57b3', '#16738b'
 export function Dashboard({ metrics }: DashboardProps) {
   const pipeline = metrics.pipelineSummary;
 
-  const cards = [
-    ['Total de chamados analisados', String(metrics.totalDemands)],
-    ['Chamados da SCIRE', String(metrics.scireDemands)],
-    ['Chamados do CRECI/PR', String(metrics.creciDemands)],
-    ['Chamados em ambas as bases', String(metrics.bothBases)],
-    ['Chamados apenas na SCIRE', String(metrics.onlyScire)],
-    ['Chamados apenas no CRECI/PR', String(metrics.onlyCreci)],
+  const classificationCards = [
     ['Obrigações contratuais', String(metrics.contractualObligations)],
     ['Melhorias evolutivas', String(metrics.evolutionaryImprovements)],
     ['Casos mistos', String(metrics.mixedCases)],
     ['Pendentes de validação', String(metrics.pendingValidation)],
     ['Duplicidades', String(metrics.duplicates)],
+  ];
+
+  const valueCards = [
     ['Valor cobrado pela SCIRE', formatCurrency(metrics.billedValue)],
     ['Valor tecnicamente devido', formatCurrency(metrics.technicalDueValue)],
     ['Valor glosável', formatCurrency(metrics.glosableValue)],
@@ -50,36 +47,89 @@ export function Dashboard({ metrics }: DashboardProps) {
         </div>
       </div>
 
-      {pipeline ? (
-        <div className="metrics-grid">
-          <article className="metric-card">
-            <span>Pipeline • usuários normalizados</span>
-            <strong>{pipeline.normalizedUsers}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Pipeline • chamados CRECI normalizados</span>
-            <strong>{pipeline.normalizedCreciTickets}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Pipeline • chamados SCIRE normalizados</span>
-            <strong>{pipeline.normalizedScireTickets}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Pipeline • grupos confrontados</span>
-            <strong>{pipeline.matchedGroups}</strong>
-          </article>
+      {/* ── Bloco 1: Contagens brutas dos arquivos ── */}
+      <div className="dashboard-block">
+        <h3 className="dashboard-block__title">Chamados nos arquivos importados</h3>
+        <p className="dashboard-block__subtitle">Contagem real das linhas reconhecidas em cada base de dados.</p>
+        <div className="metrics-grid metrics-grid--highlight">
+          {pipeline ? (
+            <>
+              <article className="metric-card metric-card--primary">
+                <span>Total de chamados SCIRE</span>
+                <strong>{pipeline.normalizedScireTickets}</strong>
+              </article>
+              <article className="metric-card metric-card--primary">
+                <span>Total de chamados CRECI/PR</span>
+                <strong>{pipeline.normalizedCreciTickets}</strong>
+              </article>
+              <article className="metric-card metric-card--primary">
+                <span>Usuários cadastrados</span>
+                <strong>{pipeline.normalizedUsers}</strong>
+              </article>
+            </>
+          ) : (
+            <article className="metric-card">
+              <span>Dados de pipeline não disponíveis</span>
+              <strong>—</strong>
+            </article>
+          )}
         </div>
-      ) : null}
-
-      <div className="metrics-grid">
-        {cards.map(([label, value]) => (
-          <article key={label} className="metric-card">
-            <span>{label}</span>
-            <strong>{value}</strong>
-          </article>
-        ))}
       </div>
 
+      {/* ── Bloco 2: Resultado do confronto CRECI × SCIRE ── */}
+      <div className="dashboard-block">
+        <h3 className="dashboard-block__title">Confronto CRECI × SCIRE</h3>
+        <p className="dashboard-block__subtitle">
+          Após o cruzamento dos chamados, cada par (ou chamado isolado) forma um "grupo auditado".
+          Um grupo com match em ambas as bases aparece uma única vez.
+        </p>
+        <div className="metrics-grid">
+          <article className="metric-card">
+            <span>Total de grupos auditados</span>
+            <strong>{metrics.totalDemands}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Com correspondência em ambas</span>
+            <strong>{metrics.bothBases}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Apenas na SCIRE (sem match CRECI)</span>
+            <strong>{metrics.onlyScire}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Apenas no CRECI (sem match SCIRE)</span>
+            <strong>{metrics.onlyCreci}</strong>
+          </article>
+        </div>
+      </div>
+
+      {/* ── Bloco 3: Classificação contratual ── */}
+      <div className="dashboard-block">
+        <h3 className="dashboard-block__title">Classificação dos grupos</h3>
+        <div className="metrics-grid">
+          {classificationCards.map(([label, value]) => (
+            <article key={label} className="metric-card">
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Bloco 4: Valores financeiros ── */}
+      <div className="dashboard-block">
+        <h3 className="dashboard-block__title">Análise financeira</h3>
+        <div className="metrics-grid">
+          {valueCards.map(([label, value]) => (
+            <article key={label} className="metric-card">
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Gráficos ── */}
       <div className="charts-grid">
         <div className="chart-card">
           <h3>Classificação contratual</h3>
