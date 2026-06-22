@@ -355,7 +355,13 @@ function isTotalizerRow(row: MatrixRow): boolean {
 
 function addMinuteStrings(a: string, b: string): string {
   const parse = (s: string): number => {
-    const cleaned = s.trim().replace(/\.(?=\d{3}(?:\D|$))/g, '').replace(',', '.');
+    let cleaned = s.trim();
+    // Remove dot thousand separator (pt-BR: "3.600" → "3600")
+    cleaned = cleaned.replace(/\.(?=\d{3}(?:\D|$))/g, '');
+    // Remove comma thousand separator (en-US from xlsx raw:false: "3,600" → "3600")
+    cleaned = cleaned.replace(/,(?=\d{3}(?!\d))/g, '');
+    // Replace remaining comma (decimal separator) with dot
+    cleaned = cleaned.replace(',', '.');
     return Number(cleaned) || 0;
   };
   return String(parse(a) + parse(b));

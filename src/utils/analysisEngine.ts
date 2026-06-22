@@ -342,8 +342,9 @@ function parseDateValue(value: string): string {
 function parseBrazilianNumber(value: string): number {
   const cleaned = value
     .replace(/[R$\s]/g, '')
-    .replace(/\.(?=\d{3}(?:\D|$))/g, '')
-    .replace(',', '.')
+    .replace(/\.(?=\d{3}(?:\D|$))/g, '')  // remove pt-BR thousand separator (dot)
+    .replace(/,(?=\d{3}(?!\d))/g, '')      // remove en-US thousand separator (comma: "3,600" → "3600")
+    .replace(',', '.')                      // convert remaining comma (decimal) to dot
     .trim();
 
   const parsed = Number(cleaned);
