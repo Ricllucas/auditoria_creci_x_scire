@@ -39,7 +39,7 @@ function stringifyRowValue(value: unknown): string {
   }
 
   if (value instanceof Date) {
-    return value.toISOString();
+    return Number.isNaN(value.getTime()) ? '' : value.toISOString();
   }
 
   return String(value).trim();
@@ -178,6 +178,7 @@ function trimTrailingEmptyCells(row: MatrixRow): MatrixRow {
 
 function matrixFromUnknownRows(rows: unknown[][]): MatrixRow[] {
   return rows
+    .filter((row) => Array.isArray(row))
     .map((row) => trimTrailingEmptyCells(row.map((value) => stringifyRowValue(value).replace(/\r/g, '\n').trim())))
     .filter((row) => row.some(Boolean));
 }
@@ -648,6 +649,7 @@ async function parseSpreadsheet(file: File, sectionId: UploadSectionId): Promise
 
   workbook.SheetNames.forEach((sheetName) => {
     const worksheet = workbook.Sheets[sheetName];
+    if (!worksheet) return;
     const matrix = matrixFromUnknownRows(
       XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
         header: 1,

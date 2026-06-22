@@ -307,8 +307,8 @@ function extractBilledValueText(text: string): string {
 
 function parseExcelDate(value: number): string {
   const epoch = new Date(Date.UTC(1899, 11, 30));
-  epoch.setUTCDate(epoch.getUTCDate() + value);
-  return epoch.toISOString();
+  epoch.setUTCDate(epoch.getUTCDate() + Math.floor(value));
+  return Number.isNaN(epoch.getTime()) ? '' : epoch.toISOString();
 }
 
 function parseDateValue(value: string): string {
@@ -1048,7 +1048,7 @@ function extractTicketRowsFromText(file: ParsedInputFile): ParsedInputRow[] {
 
 function extractUserDirectory(files: ParsedInputFile[]): UserDirectoryEntry[] {
   const rows = files.flatMap((file) => [
-    ...file.rows.map((row) => ({ row, fileName: file.fileName })),
+    ...(file.rows ?? []).map((row) => ({ row, fileName: file.fileName })),
     ...extractDirectoryRowsFromText(file).map((row) => ({ row, fileName: file.fileName })),
   ]);
 
@@ -1104,7 +1104,9 @@ function extractTickets(files: ParsedInputFile[], origin: TicketRecord['origin']
     })),
   );
 
-  const tabularRows = files.flatMap((file) => file.rows.map((row) => ({ sourceFile: file.fileName, row })));
+  const tabularRows = files.flatMap((file) =>
+    (file.rows ?? []).map((row) => ({ sourceFile: file.fileName, row })),
+  );
 
   return [...tabularRows, ...textRows]
     .map(({ row, sourceFile }) => {
@@ -1181,7 +1183,9 @@ function extractContractInsights(files: ParsedInputFile[]): ContractInsight[] {
   const insights: ContractInsight[] = [];
 
   files.forEach((file) => {
-    const content = normalizeWhitespace([file.textContent, ...file.rows.map((row) => Object.values(row).join(' '))].join('\n'));
+    const content = normalizeWhitespace(
+      [file.textContent ?? '', ...(file.rows ?? []).map((row) => Object.values(row).join(' '))].join('\n'),
+    );
 
     if (!content) {
       insights.push({

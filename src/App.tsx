@@ -380,7 +380,9 @@ export default function App() {
       return [];
     }
 
-    return result.processedFiles.flatMap((file) => file.warnings.map((warning) => `${file.fileName}: ${warning}`));
+    return (result.processedFiles ?? []).flatMap((file) =>
+      (file.warnings ?? []).map((warning) => `${file.fileName}: ${warning}`),
+    );
   }, [result]);
 
   return (
