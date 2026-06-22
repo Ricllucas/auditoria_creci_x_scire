@@ -301,7 +301,8 @@ function extractHourlyRateText(text: string): string {
 
 function extractBilledValueText(text: string): string {
   return extractByPatterns(text, [
-    /(?:valor cobrado|total cobrado|cobranca|cobrança|valor total|total)\s*[:\-]?\s*(R?\$?\s*[\d.]+,\d{2})/i,
+    // Only match explicit billing labels; "total" alone is too ambiguous (descriptions often contain project totals)
+    /(?:valor cobrado|total cobrado|cobranca|cobrança)\s*[:\-]?\s*(R?\$?\s*[\d.]+,\d{2})/i,
   ]);
 }
 
