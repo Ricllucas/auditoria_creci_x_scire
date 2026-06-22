@@ -324,7 +324,8 @@ function parseDateValue(value: string): string {
   if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(trimmed)) {
     const [datePart, timePart] = trimmed.split(' ');
     const [day, month, year] = datePart.split('/');
-    return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart || '00:00:00'}`).toISOString();
+    const d = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart || '00:00:00'}`);
+    return Number.isNaN(d.getTime()) ? trimmed : d.toISOString();
   }
 
   const parsed = new Date(trimmed);
