@@ -16,6 +16,7 @@ import {
 import { GENERIC_TITLE_KEYWORDS, IMPROVEMENT_KEYWORDS, OBLIGATION_KEYWORDS, SECTION_DEFINITIONS } from '../constants';
 import { formatCpf, isValidCpf, normalizeCpf } from './cpf';
 import { formatCurrency, formatDate, formatNumber, uniqueBy } from './format';
+import { buildUnifiedTechnicalReport } from './unifiedReport';
 
 function normalizeText(value: string): string {
   return value
@@ -1545,7 +1546,7 @@ export function runAuditAnalysis(params: {
     },
   ];
 
-  return {
+  const analysisResult = {
     generatedAt: new Date().toISOString(),
     settings: {
       ...settings,
@@ -1565,5 +1566,10 @@ export function runAuditAnalysis(params: {
     pendingItems,
     divergenceItems,
     duplicateItems,
+  };
+
+  return {
+    ...analysisResult,
+    unifiedReport: buildUnifiedTechnicalReport(analysisResult),
   };
 }

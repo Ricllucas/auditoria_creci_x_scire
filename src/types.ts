@@ -215,6 +215,77 @@ export interface CalculationMemoEntry {
   result: string;
 }
 
+export interface UnifiedReportDepartmentComparison {
+  department: string;
+  scireCount: number;
+  scireHours: number;
+  scireValue: number;
+  creciCount: number;
+  creciHours: number;
+  creciValue: number;
+  divergenceLabel: string;
+}
+
+export interface UnifiedReportDepartmentDistribution {
+  department: string;
+  totalOccurrences: number;
+  contractualCount: number;
+  improvementCount: number;
+  contractualPercentage: number;
+  improvementPercentage: number;
+}
+
+export interface UnifiedReportAnalyticRow {
+  rowId: string;
+  displayCode: string;
+  title: string;
+  requester: string;
+  department: string;
+  module: string;
+  openedAt: string;
+  status: string;
+  framing: 'CONTRATUAL' | 'MELHORIA' | 'MISTO' | 'PENDENTE';
+  scireHours: number;
+  auditAction: string;
+}
+
+export interface UnifiedReportRecommendation {
+  priority: string;
+  description: string;
+  reference: string;
+  framing: 'CONTRATUAL' | 'MELHORIA' | 'MISTO' | 'PENDENTE';
+}
+
+export interface UnifiedTechnicalReportModel {
+  title: string;
+  subtitle: string;
+  processReference: string;
+  issuedAtLabel: string;
+  presentationParagraphs: string[];
+  totals: {
+    totalDemands: number;
+    closedSupport: number;
+    openSupport: number;
+    outsideSupport: number;
+    scireClaimedCount: number;
+    documentedCreciCount: number;
+    mappedDivergences: number;
+    estimatedGlosaValue: number;
+    billedValue: number;
+    dueValue: number;
+    differenceBetweenClaimedAndDue: number;
+    contractualFranchiseHours: number;
+    contractualFranchiseValue: number;
+    supplementaryHours: number;
+    supplementaryValue: number;
+  };
+  departmentComparisons: UnifiedReportDepartmentComparison[];
+  departmentDistribution: UnifiedReportDepartmentDistribution[];
+  analyticRows: UnifiedReportAnalyticRow[];
+  recommendations: UnifiedReportRecommendation[];
+  conclusionParagraphs: string[];
+}
+
 export interface AnalysisResult {
   generatedAt: string;
   settings: AnalysisSettings;
@@ -232,6 +303,7 @@ export interface AnalysisResult {
   pendingItems: AnalysisRow[];
   divergenceItems: AnalysisRow[];
   duplicateItems: AnalysisRow[];
+  unifiedReport?: UnifiedTechnicalReportModel;
 }
 
 export interface AppUser {

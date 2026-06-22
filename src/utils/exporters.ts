@@ -74,6 +74,44 @@ export function exportAnalysisToExcel(result: AnalysisResult): void {
     'RelatorioTecnico',
   );
 
+  if (result.unifiedReport) {
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.json_to_sheet(
+        result.unifiedReport.departmentComparisons.map((item) => ({
+          Departamento: item.department,
+          'SCIRE Itens': item.scireCount,
+          'SCIRE Horas': item.scireHours,
+          'SCIRE Valor': item.scireValue,
+          'CRECI Itens': item.creciCount,
+          'CRECI Horas': item.creciHours,
+          'CRECI Valor': item.creciValue,
+          'Divergência / Glosa': item.divergenceLabel,
+        })),
+      ),
+      'ComparativoSetores',
+    );
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.json_to_sheet(
+        result.unifiedReport.analyticRows.map((item) => ({
+          'ID / Chamado': item.displayCode,
+          'Título e Detalhes': item.title,
+          'Usuário Solicitante': item.requester,
+          Departamento: item.department,
+          Módulo: item.module,
+          Abertura: item.openedAt,
+          Situação: item.status,
+          Enquadramento: item.framing,
+          'Horas (SCIRE)': item.scireHours,
+          'Ações de Auditoria': item.auditAction,
+        })),
+      ),
+      'RelacaoAnaliticaUnificada',
+    );
+  }
+
   const buffer = XLSX.write(workbook, {
     type: 'array',
     bookType: 'xlsx',
@@ -94,14 +132,19 @@ export function exportAnalysisToPdf(result: AnalysisResult): void {
     format: 'a4',
   });
 
+  const unified = result.unifiedReport;
+
   document.setFontSize(16);
-  document.text(result.settings.analysisLabel, 40, 40);
+  document.text(unified?.title || result.settings.analysisLabel, 40, 40);
   document.setFontSize(10);
   document.text(`Gerado em ${formatDateTime(result.generatedAt)}`, 40, 58);
   document.text(`Valor/hora aplicado: ${formatCurrency(result.settings.hourlyRate)}`, 40, 74);
+  if (unified) {
+    document.text(unified.processReference, 40, 90);
+  }
 
   autoTable(document, {
-    startY: 92,
+    startY: unified ? 108 : 92,
     head: [['Indicador', 'Valor']],
     body: [
       ['Demandas analisadas', String(result.dashboard.totalDemands)],
@@ -114,48 +157,80 @@ export function exportAnalysisToPdf(result: AnalysisResult): void {
     headStyles: { fillColor: [25, 45, 78] },
   });
 
+  if (unified) {
+    autoTable(document, {
+      startY:
+        ((document as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 140) + 18,
+      head: [['Departamento', 'SCIRE', 'CRECI', 'Divergência / Glosa']],
+      body: unified.departmentComparisons.map((item) => [
+        item.department,
+        `${item.scireCount} itens | ${formatNumber(item.scireHours)}h | ${formatCurrency(item.scireValue)}`,
+        `${item.creciCount} itens | ${formatNumber(item.creciHours)}h | ${formatCurrency(item.creciValue)}`,
+        item.divergenceLabel,
+      ]),
+      styles: { fontSize: 7, cellPadding: 3 },
+      headStyles: { fillColor: [44, 85, 48] },
+      columnStyles: {
+        0: { cellWidth: 120 },
+        1: { cellWidth: 170 },
+        2: { cellWidth: 170 },
+        3: { cellWidth: 130 },
+      },
+    });
+  }
+
   autoTable(document, {
     startY: (document as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY
       ? ((document as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 120) + 18
       : 180,
     head: [
       [
-        'Código',
-        'Título',
-        'Origem',
-        'Classificação',
-        'Comparação',
-        'Cobrado',
-        'Devido',
-        'Glosável',
-        'Recomendação',
+        'ID / Chamado',
+        'Título e Detalhes',
+        'Usuário',
+        'Departamento',
+        'Módulo',
+        'Situação',
+        'Enquadramento',
+        'Horas',
+        'Ação de Auditoria',
       ],
     ],
-    body: result.rows.slice(0, 40).map((row) => [
-      row.callCode,
+    body: (unified?.analyticRows ?? []).slice(0, 40).map((row) => [
+      row.displayCode,
       row.title,
-      row.demandOrigin,
-      row.contractualClassification,
-      row.comparison,
-      formatCurrency(row.billedValue),
-      formatCurrency(row.technicalDueValue),
-      formatCurrency(row.glosableValue),
-      row.recommendation,
+      row.requester,
+      row.department,
+      row.module,
+      row.status,
+      row.framing,
+      `${formatNumber(row.scireHours)}h`,
+      row.auditAction,
     ]),
     styles: { fontSize: 7, cellPadding: 3 },
     headStyles: { fillColor: [44, 85, 48] },
     columnStyles: {
       1: { cellWidth: 180 },
-      3: { cellWidth: 120 },
-      4: { cellWidth: 110 },
-      8: { cellWidth: 90 },
+      2: { cellWidth: 100 },
+      3: { cellWidth: 90 },
+      4: { cellWidth: 95 },
+      8: { cellWidth: 180 },
     },
   });
 
   let currentY =
     ((document as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 540) + 20;
 
-  result.reportSections.slice(0, 4).forEach((section) => {
+  const reportSectionsToRender = unified
+    ? [
+        {
+          title: 'Conclusão Administrativa e Diretriz de Conciliação',
+          items: unified.conclusionParagraphs,
+        },
+      ]
+    : result.reportSections.slice(0, 4);
+
+  reportSectionsToRender.forEach((section) => {
     if (currentY > 520) {
       document.addPage();
       currentY = 40;

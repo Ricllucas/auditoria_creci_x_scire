@@ -337,16 +337,17 @@ export default function App() {
           <span className="hero__eyebrow">Plataforma de auditoria preventiva e fiscalização contratual</span>
           <h1>CRECI/PR x SCIRE</h1>
           <p>
-            Importe bases, contratos e chamados para classificar demandas, calcular valores, apontar glosas e gerar
-            relatórios técnicos auditáveis.
+            Anexe em PDF as bases do CRECI/PR, da SCIRE, os usuários oficiais e os documentos contratuais para que o
+            sistema confronte as evidências, separe obrigação contratual de melhoria evolutiva e gere relatório técnico
+            unificado e justificável.
           </p>
         </div>
 
         <div className="hero__status">
           <div className="hero__status-card">
             <span>Modo de uso</span>
-            <strong>Uso individual sem login</strong>
-            <small>Versão 100% local para execução direta no navegador</small>
+            <strong>Auditoria unificada CRECI x SCIRE</strong>
+            <small>Confronto documental, classificação contratual e relatório técnico consolidado</small>
           </div>
           <div className="hero__status-card">
             <span>Status atual</span>
@@ -562,8 +563,9 @@ export default function App() {
             ) : (
               <div className="empty-state">
                 <p>
-                  Anexe arquivos nas quatro seções, confirme os documentos e execute a análise para gerar painel,
-                  tabela analítica, memória de cálculo, relatório técnico e exportações.
+                  Anexe em PDF as bases do CRECI/PR, da SCIRE, os usuários oficiais e os documentos contratuais para
+                  gerar o confronto entre as bases, classificar cada demanda entre contratual e melhoria e emitir o
+                  relatório técnico consolidado.
                 </p>
                 <ul className="side-list">
                   <li>O sistema aceita múltiplos PDFs, XLS, XLSX e CSV em todas as bases operacionais.</li>
