@@ -231,6 +231,10 @@ button {
   margin-top: 24px;
 }
 
+.layout-grid--full {
+  grid-template-columns: 1fr;
+}
+
 .layout-main {
   display: grid;
   gap: 22px;
@@ -241,6 +245,10 @@ button {
   gap: 22px;
   position: sticky;
   top: 20px;
+}
+
+.layout-side--hidden {
+  display: none;
 }
 
 .panel-card,

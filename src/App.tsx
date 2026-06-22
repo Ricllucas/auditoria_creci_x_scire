@@ -494,7 +494,7 @@ export default function App() {
         </section>
       )}
 
-      <div className="layout-grid">
+      <div className={`layout-grid${activeView !== 'import' ? ' layout-grid--full' : ''}`}>
         <div className="layout-main">
           <SavedAnalysesPanel
             analyses={savedAnalyses}
@@ -620,7 +620,7 @@ export default function App() {
           {activeView === 'report' && result && <ReportView result={result} />}
         </div>
 
-        <aside className="layout-side">
+        <aside className={`layout-side${activeView !== 'import' ? ' layout-side--hidden' : ''}`}>
           <section className="panel-card">
             <div className="panel-card__header">
               <div>
