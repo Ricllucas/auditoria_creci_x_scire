@@ -13,7 +13,14 @@ import {
   UploadSectionState,
   UserDirectoryEntry,
 } from '../types';
-import { GENERIC_TITLE_KEYWORDS, IMPROVEMENT_KEYWORDS, OBLIGATION_KEYWORDS, SECTION_DEFINITIONS } from '../constants';
+import {
+  CONTRACTUAL_KEYWORDS_BY_RULE,
+  GENERIC_TITLE_KEYWORDS,
+  IMPROVEMENT_KEYWORDS,
+  IMPROVEMENT_KEYWORDS_BY_RULE,
+  OBLIGATION_KEYWORDS,
+  SECTION_DEFINITIONS,
+} from '../constants';
 import { formatCpf, isValidCpf, normalizeCpf } from './cpf';
 import { formatCurrency, formatDate, formatNumber, uniqueBy } from './format';
 import { buildUnifiedTechnicalReport } from './unifiedReport';
@@ -381,6 +388,390 @@ function compactParts(parts: Array<string | undefined | null>): string {
     .map((part) => (part ?? '').trim())
     .filter(Boolean)
     .join(' | ');
+}
+
+type ContractualRuleId =
+  | 'corrective_support'
+  | 'existing_report_fix'
+  | 'document_and_delivery_fix'
+  | 'new_feature'
+  | 'analytics_and_bi'
+  | 'integration_and_automation'
+  | 'layout_expansion';
+
+interface AuditRuleMatch {
+  ruleId: ContractualRuleId;
+  ruleType: 'contractual' | 'improvement';
+  weight: number;
+  matchedKeywords: string[];
+}
+
+interface AuditTicketGroup {
+  key: string;
+  creci: TicketRecord[];
+  scire: TicketRecord[];
+  representative?: TicketRecord;
+  normalizedDescription: string;
+  officialDepartment: string;
+  probableDepartment: string;
+  officialUser: string;
+  comparison: ComparisonStatus;
+  validCpf: boolean;
+  matchedRules: AuditRuleMatch[];
+  classification: ContractualClassification;
+  confidence: ConfidenceLevel;
+  billedValue: number;
+  technicalDueValue: number;
+  simulatedValue: number;
+  glosableValue: number;
+  timeMinutes: number;
+  timeHours: number;
+  appliedRate: number;
+  moduleName: string;
+  recommendation: string;
+  inconsistencies: string;
+  technicalBasis: string;
+  contractualBasis: string;
+  departmentCriterion: string;
+  officialSector: string;
+}
+
+function keywordsForRule(record: Record<string, readonly string[]>): Array<[ContractualRuleId, readonly string[]]> {
+  return Object.entries(record) as Array<[ContractualRuleId, readonly string[]]>;
+}
+
+function inferModuleName(text: string): string {
+  const normalized = normalizeText(text);
+
+  if (normalized.includes('ouvidoria')) {
+    return 'Ouvidoria';
+  }
+  if (normalized.includes('gestao de prazos') || normalized.includes('gestão de prazos') || normalized.includes('prazo')) {
+    return 'Gestão de Prazos';
+  }
+  if (normalized.includes('plano de acao') || normalized.includes('plano de ação') || normalized.includes('blitz')) {
+    return 'Plano de Ação Fiscal';
+  }
+  if (normalized.includes('prestacao de contas') || normalized.includes('prestação de contas')) {
+    return 'Prestação de Contas';
+  }
+  if (normalized.includes('ficha cadastral')) {
+    return 'Ficha Cadastral';
+  }
+  if (normalized.includes('relatorio') || normalized.includes('relatório')) {
+    return 'Relatórios Gerenciais';
+  }
+  if (normalized.includes('assinatura')) {
+    return 'Assinatura Digital';
+  }
+  if (normalized.includes('ordem de servico') || normalized.includes('ordem de serviço') || normalized.includes('os ')) {
+    return 'Ordens de Serviço';
+  }
+  if (normalized.includes('acao fiscal') || normalized.includes('ação fiscal') || normalized.includes('auto')) {
+    return 'Ações Fiscalizatórias';
+  }
+  if (normalized.includes('debito') || normalized.includes('débito') || normalized.includes('anuidade')) {
+    return 'Débitos e Anuidades';
+  }
+  if (normalized.includes('email') || normalized.includes('e mail') || normalized.includes('documento')) {
+    return 'E-mails e Documentos';
+  }
+
+  return 'Módulo não identificado';
+}
+
+function buildNormalizedDescription(tickets: TicketRecord[]): string {
+  return compactParts(
+    tickets.flatMap((ticket) => [ticket.title, ticket.description]),
+  );
+}
+
+function matchAuditRules(text: string): AuditRuleMatch[] {
+  const normalized = normalizeText(text);
+  const matches: AuditRuleMatch[] = [];
+
+  keywordsForRule(CONTRACTUAL_KEYWORDS_BY_RULE).forEach(([ruleId, keywords]) => {
+    const matchedKeywords = keywords.filter((keyword) => normalized.includes(normalizeText(keyword)));
+    if (matchedKeywords.length) {
+      matches.push({
+        ruleId,
+        ruleType: 'contractual',
+        weight: matchedKeywords.length * 2,
+        matchedKeywords,
+      });
+    }
+  });
+
+  keywordsForRule(IMPROVEMENT_KEYWORDS_BY_RULE).forEach(([ruleId, keywords]) => {
+    const matchedKeywords = keywords.filter((keyword) => normalized.includes(normalizeText(keyword)));
+    if (matchedKeywords.length) {
+      matches.push({
+        ruleId,
+        ruleType: 'improvement',
+        weight: matchedKeywords.length * 3,
+        matchedKeywords,
+      });
+    }
+  });
+
+  return matches;
+}
+
+function classifyByRules(params: {
+  normalizedDescription: string;
+  comparison: ComparisonStatus;
+  hasContracts: boolean;
+  hasMissingEvidence: boolean;
+  group: { creci: TicketRecord[]; scire: TicketRecord[] };
+}): {
+  classification: ContractualClassification;
+  matchedRules: AuditRuleMatch[];
+  auditSummary: string;
+} {
+  const { normalizedDescription, comparison, hasContracts, hasMissingEvidence, group } = params;
+  const matchedRules = matchAuditRules(normalizedDescription);
+  const contractualWeight = sum(matchedRules.filter((rule) => rule.ruleType === 'contractual').map((rule) => rule.weight));
+  const improvementWeight = sum(matchedRules.filter((rule) => rule.ruleType === 'improvement').map((rule) => rule.weight));
+
+  let classification: ContractualClassification;
+
+  if (group.creci.length > 1 || group.scire.length > 1 || comparison === 'Duplicado') {
+    classification = 'Duplicidade';
+  } else if (hasMissingEvidence) {
+    classification = 'Pendente de Validação';
+  } else if (improvementWeight > 0 && contractualWeight > 0) {
+    classification = 'Misto / Revisão Necessária';
+  } else if (improvementWeight > contractualWeight && improvementWeight > 0) {
+    classification = 'Melhoria Evolutiva';
+  } else if (contractualWeight > 0) {
+    classification = 'Obrigação Contratual';
+  } else if (!hasContracts) {
+    classification = 'Fora do Escopo Documental Disponível';
+  } else {
+    classification = detectClassification(normalizedDescription, hasContracts, false, hasMissingEvidence);
+  }
+
+  const summary = matchedRules.length
+    ? matchedRules
+        .map((rule) => `${rule.ruleId}: ${rule.matchedKeywords.join(', ')}`)
+        .join(' | ')
+    : 'Sem regra textual determinística; aplicada heurística residual.';
+
+  return {
+    classification,
+    matchedRules,
+    auditSummary: summary,
+  };
+}
+
+function detectConfidenceFromEvidence(params: {
+  comparison: ComparisonStatus;
+  classification: ContractualClassification;
+  validCpf: boolean;
+  officialDepartment: string;
+  hasContracts: boolean;
+  title: string;
+  description: string;
+  matchedRules: AuditRuleMatch[];
+}): ConfidenceLevel {
+  const baseConfidence = detectConfidence(
+    params.comparison,
+    params.classification,
+    params.validCpf,
+    params.officialDepartment,
+    params.hasContracts,
+    params.title,
+    params.description,
+  );
+
+  if (baseConfidence === 'Baixa confiança') {
+    return baseConfidence;
+  }
+
+  if (params.matchedRules.length >= 2 && params.classification !== 'Pendente de Validação') {
+    return 'Alta confiança';
+  }
+
+  return baseConfidence;
+}
+
+function buildRecommendation(params: {
+  classification: ContractualClassification;
+  confidence: ConfidenceLevel;
+  comparison: ComparisonStatus;
+  billedValue: number;
+  hasCreciEvidence: boolean;
+}): string {
+  if (!params.hasCreciEvidence && params.billedValue > 0) {
+    return 'Glosar integralmente';
+  }
+
+  return recommendationFor(params.classification, params.confidence, params.comparison, params.billedValue);
+}
+
+function buildTechnicalBasisFromRules(matches: AuditRuleMatch[], comparison: ComparisonStatus, confidence: ConfidenceLevel): string {
+  return compactParts([
+    ...matches.map((match) =>
+      match.ruleType === 'contractual'
+        ? `Regra contratual identificada: ${match.matchedKeywords.join(', ')}`
+        : `Regra de melhoria identificada: ${match.matchedKeywords.join(', ')}`,
+    ),
+    comparison === 'Ausente no CRECI/PR' ? 'Cobrança sem espelho completo na base interna do CRECI/PR' : '',
+    confidence === 'Baixa confiança' ? 'Elementos insuficientes para reconhecimento automático do valor devido' : '',
+  ]);
+}
+
+function buildContractualBasisFromInsights(
+  contractInsights: ContractInsight[],
+  appliedRate: number,
+  hasContracts: boolean,
+): string {
+  return compactParts([
+    contractInsights.some((item) => item.kind === 'hourly_rate')
+      ? `Valor/hora contratual aplicável considerado em ${formatCurrency(appliedRate)}`
+      : `Valor/hora de referência manual considerado em ${formatCurrency(appliedRate)}`,
+    contractInsights.some((item) => item.kind === 'continuous_obligation')
+      ? 'Documentos contratuais indicam obrigações contínuas de suporte e manutenção'
+      : '',
+    contractInsights.some((item) => item.kind === 'on_demand_service')
+      ? 'Documentos contratuais registram prestação evolutiva ou sob demanda'
+      : '',
+    !hasContracts ? 'Sem documento contratual legível para vinculação integral do escopo' : '',
+  ]);
+}
+
+function buildAuditGroups(params: {
+  groups: Array<{ key: string; creci: TicketRecord[]; scire: TicketRecord[] }>;
+  userDirectory: UserDirectoryEntry[];
+  overrides: CpfOverrideRule[];
+  fileGroups: {
+    userBase: ParsedInputFile[];
+    creciCalls: ParsedInputFile[];
+    scireCalls: ParsedInputFile[];
+    contracts: ParsedInputFile[];
+  };
+  appliedRate: number;
+  contractInsights: ContractInsight[];
+  settings: AnalysisSettings;
+}): AuditTicketGroup[] {
+  const { groups, userDirectory, overrides, fileGroups, appliedRate, contractInsights, settings } = params;
+
+  return groups.map((group) => {
+    const representative = group.scire[0] ?? group.creci[0];
+    const comparison = detectComparison(group.creci, group.scire, settings.similarityThreshold);
+    const normalizedDescription = buildNormalizedDescription([
+      ...group.creci,
+      ...group.scire,
+    ]);
+    const cpf = representative?.cpf ?? '';
+    const validCpf = isValidCpf(cpf);
+    const resolution = resolveOfficialDepartment(cpf, userDirectory, overrides);
+    const hasMissingEvidence =
+      !representative?.description ||
+      !representative?.title ||
+      (!representative?.minutes && group.scire.length > 0) ||
+      !validCpf ||
+      comparison === 'Ausente no CRECI/PR' ||
+      comparison === 'Pendente de validação' ||
+      resolution.hasMultipleLinks;
+
+    const ruleClassification = classifyByRules({
+      normalizedDescription,
+      comparison,
+      hasContracts: fileGroups.contracts.length > 0,
+      hasMissingEvidence,
+      group,
+    });
+
+    const confidence = detectConfidenceFromEvidence({
+      comparison,
+      classification: ruleClassification.classification,
+      validCpf,
+      officialDepartment: resolution.department,
+      hasContracts: fileGroups.contracts.length > 0,
+      title: representative?.title ?? '',
+      description: representative?.description ?? '',
+      matchedRules: ruleClassification.matchedRules,
+    });
+
+    const scireMinutes = sum(group.scire.map((ticket) => ticket.minutes));
+    const creciMinutes = sum(group.creci.map((ticket) => ticket.minutes));
+    const timeMinutes = scireMinutes || creciMinutes || representative?.minutes || 0;
+    const timeHours = timeMinutes / 60;
+    const sourceHourlyRate = group.scire.find((ticket) => ticket.hourlyRate > 0)?.hourlyRate ?? appliedRate;
+    const billedValueFromScire = sum(group.scire.map((ticket) => ticket.billedValue));
+    const billedValue = billedValueFromScire > 0 ? billedValueFromScire : group.scire.length ? timeHours * sourceHourlyRate : 0;
+
+    let technicalDueValue = 0;
+    let simulatedValue = 0;
+
+    if (ruleClassification.classification === 'Melhoria Evolutiva' && confidence !== 'Baixa confiança') {
+      if (group.scire.length) {
+        technicalDueValue = timeHours * appliedRate;
+      } else {
+        simulatedValue = timeHours * appliedRate;
+      }
+    }
+
+    const glosableValue = Math.max(0, billedValue - technicalDueValue);
+    const probableDepartment = resolution.probableDepartment || representative?.department || '';
+    const recommendation = buildRecommendation({
+      classification: ruleClassification.classification,
+      confidence,
+      comparison,
+      billedValue,
+      hasCreciEvidence: group.creci.length > 0,
+    });
+
+    const inconsistencies = [
+      !validCpf ? 'CPF ausente, inválido ou não verificável' : '',
+      comparison === 'Divergente por departamento' ? 'Divergência entre departamento CRECI x SCIRE' : '',
+      comparison === 'Divergente por CPF' ? 'Divergência de CPF entre as bases' : '',
+      comparison === 'Divergente por usuário' ? 'Divergência de usuário entre as bases' : '',
+      comparison === 'Divergente por descrição' ? 'Divergência descritiva relevante' : '',
+      comparison === 'Ausente no CRECI/PR' ? 'Cobrança apresentada sem registro interno equivalente' : '',
+      comparison === 'Ausente na SCIRE' ? 'Registro interno sem apresentação correspondente na SCIRE' : '',
+      comparison === 'Duplicado' ? 'Possível duplicidade ou fragmentação artificial' : '',
+      resolution.hasMultipleLinks ? 'CPF com múltiplo vínculo não resolvido' : '',
+      !resolution.department && probableDepartment ? `Departamento provável identificado: ${probableDepartment}` : '',
+      ruleClassification.classification === 'Fora do Escopo Documental Disponível' ? 'Escopo contratual insuficiente para conclusão' : '',
+    ]
+      .filter(Boolean)
+      .join('; ');
+
+    return {
+      key: group.key,
+      creci: group.creci,
+      scire: group.scire,
+      representative,
+      normalizedDescription,
+      officialDepartment: resolution.department,
+      probableDepartment,
+      officialUser: resolution.userName || representative?.userName || '',
+      comparison,
+      validCpf,
+      matchedRules: ruleClassification.matchedRules,
+      classification: ruleClassification.classification,
+      confidence,
+      billedValue,
+      technicalDueValue,
+      simulatedValue,
+      glosableValue,
+      timeMinutes,
+      timeHours,
+      appliedRate,
+      moduleName: inferModuleName(normalizedDescription),
+      recommendation,
+      inconsistencies,
+      technicalBasis:
+        buildTechnicalBasisFromRules(ruleClassification.matchedRules, comparison, confidence) || 'Sem base técnica suficiente',
+      contractualBasis:
+        buildContractualBasisFromInsights(contractInsights, appliedRate, fileGroups.contracts.length > 0) ||
+        'Sem base contratual suficiente',
+      departmentCriterion: resolution.criterion,
+      officialSector: resolution.sector,
+    };
+  });
 }
 
 function inferDepartmentFromContext(value: string): string {
@@ -1237,118 +1628,23 @@ export function runAuditAnalysis(params: {
   const contractInsights = extractContractInsights(fileGroups.contracts);
   const appliedRate = chooseApplicableHourlyRate(settings, contractInsights);
   const groups = buildTicketGroups(creciTickets, scireTickets, settings.similarityThreshold);
+  const auditGroups = buildAuditGroups({
+    groups,
+    userDirectory,
+    overrides,
+    fileGroups,
+    appliedRate,
+    contractInsights,
+    settings,
+  });
 
-  const rows: AnalysisRow[] = groups.map((group, index) => {
-    const representative = group.scire[0] ?? group.creci[0];
-    const comparison = detectComparison(group.creci, group.scire, settings.similarityThreshold);
-    const mergedText = compactParts([
-      representative?.title,
-      representative?.description,
-      group.creci[0]?.title,
-      group.creci[0]?.description,
-      group.scire[0]?.title,
-      group.scire[0]?.description,
-    ]);
-    const cpf = representative?.cpf ?? '';
-    const validCpf = isValidCpf(cpf);
-    const resolution = resolveOfficialDepartment(cpf, userDirectory, overrides);
-    const hasMissingEvidence =
-      !representative?.description ||
-      !representative?.title ||
-      (!representative?.minutes && group.scire.length > 0) ||
-      !validCpf ||
-      comparison === 'Ausente no CRECI/PR' ||
-      comparison === 'Pendente de validação' ||
-      resolution.hasMultipleLinks;
-
-    const classification = detectClassification(
-      mergedText,
-      fileGroups.contracts.length > 0,
-      comparison === 'Duplicado',
-      hasMissingEvidence,
-    );
-
-    const confidence = detectConfidence(
-      comparison,
-      classification,
-      validCpf,
-      resolution.department,
-      fileGroups.contracts.length > 0,
-      representative?.title ?? '',
-      representative?.description ?? '',
-    );
-
-    const scireMinutes = sum(group.scire.map((ticket) => ticket.minutes));
-    const creciMinutes = sum(group.creci.map((ticket) => ticket.minutes));
-    const timeMinutes = scireMinutes || creciMinutes || representative?.minutes || 0;
-    const timeHours = timeMinutes / 60;
-    const sourceHourlyRate = group.scire.find((ticket) => ticket.hourlyRate > 0)?.hourlyRate ?? appliedRate;
-    const billedValueFromScire = sum(group.scire.map((ticket) => ticket.billedValue));
-    const billedValue = billedValueFromScire > 0 ? billedValueFromScire : group.scire.length ? timeHours * sourceHourlyRate : 0;
-
-    let technicalDueValue = 0;
-    let simulatedValue = 0;
-
-    if (classification === 'Melhoria Evolutiva' && confidence !== 'Baixa confiança') {
-      if (group.scire.length) {
-        technicalDueValue = timeHours * appliedRate;
-      } else {
-        simulatedValue = timeHours * appliedRate;
-      }
-    }
-
-    const glosableValue = Math.max(0, billedValue - technicalDueValue);
+  const rows: AnalysisRow[] = auditGroups.map((group) => {
+    const representative = group.representative;
     const callDate = representative?.openedAt ? formatDate(representative.openedAt) : 'Não informado';
     const demandOrigin = group.creci.length && group.scire.length ? 'Ambas' : group.scire.length ? 'SCIRE' : 'CRECI/PR';
 
-    const probableDepartment = resolution.probableDepartment || representative?.department || '';
-    const inconsistencies = [
-      !validCpf ? 'CPF ausente, inválido ou não verificável' : '',
-      comparison === 'Divergente por departamento' ? 'Divergência entre departamento CRECI x SCIRE' : '',
-      comparison === 'Divergente por CPF' ? 'Divergência de CPF entre as bases' : '',
-      comparison === 'Divergente por usuário' ? 'Divergência de usuário entre as bases' : '',
-      comparison === 'Divergente por descrição' ? 'Divergência descritiva relevante' : '',
-      comparison === 'Ausente no CRECI/PR' ? 'Cobrança apresentada sem registro interno equivalente' : '',
-      comparison === 'Ausente na SCIRE' ? 'Registro interno sem apresentação correspondente na SCIRE' : '',
-      comparison === 'Duplicado' ? 'Possível duplicidade ou fragmentação artificial' : '',
-      resolution.hasMultipleLinks ? 'CPF com múltiplo vínculo não resolvido' : '',
-      !resolution.department && probableDepartment ? `Departamento provável identificado: ${probableDepartment}` : '',
-      classification === 'Fora do Escopo Documental Disponível' ? 'Escopo contratual insuficiente para conclusão' : '',
-    ]
-      .filter(Boolean)
-      .join('; ');
-
-    const technicalBasis = compactParts([
-      classification === 'Obrigação Contratual'
-        ? 'Indícios de manutenção corretiva, suporte ou recomposição de funcionalidade'
-        : '',
-      classification === 'Melhoria Evolutiva'
-        ? 'Indícios de criação, ampliação ou customização funcional além do suporte ordinário'
-        : '',
-      classification === 'Misto / Revisão Necessária'
-        ? 'Há elementos corretivos e evolutivos no mesmo chamado, exigindo segregação de horas'
-        : '',
-      comparison === 'Ausente no CRECI/PR' ? 'Cobrança sem espelho completo na base interna do CRECI/PR' : '',
-      confidence === 'Baixa confiança' ? 'Elementos insuficientes para reconhecimento automático do valor devido' : '',
-    ]);
-
-    const contractualBasis = compactParts([
-      contractInsights.some((item) => item.kind === 'hourly_rate')
-        ? `Valor/hora contratual aplicável considerado em ${formatCurrency(appliedRate)}`
-        : `Valor/hora de referência manual considerado em ${formatCurrency(appliedRate)}`,
-      contractInsights.some((item) => item.kind === 'continuous_obligation')
-        ? 'Documentos contratuais indicam obrigações contínuas de suporte e manutenção'
-        : '',
-      contractInsights.some((item) => item.kind === 'on_demand_service')
-        ? 'Documentos contratuais registram prestação evolutiva ou sob demanda'
-        : '',
-      !fileGroups.contracts.length ? 'Sem documento contratual legível para vinculação integral do escopo' : '',
-    ]);
-
-    const recommendation = recommendationFor(classification, confidence, comparison, billedValue);
-
     return {
-      id: group.key || String(index + 1),
+      id: group.key,
       period:
         settings.periodStart && settings.periodEnd
           ? `${formatDate(settings.periodStart)} a ${formatDate(settings.periodEnd)}`
@@ -1363,42 +1659,47 @@ export function runAuditAnalysis(params: {
       demandOrigin,
       callDate,
       status: representative?.status || 'Não informado',
-      cpf: validCpf ? formatCpf(cpf) : representative?.cpfRaw || 'Não informado',
-      identifiedUser: resolution.userName || representative?.userName || 'Não identificado',
-      officialDepartment: resolution.department || 'Pendente de validação de vínculo funcional',
-      officialSector: resolution.sector || 'Não informado',
+      cpf: group.validCpf ? formatCpf(representative?.cpf ?? '') : representative?.cpfRaw || 'Não informado',
+      identifiedUser: group.officialUser || representative?.userName || 'Não identificado',
+      officialDepartment: group.officialDepartment || 'Pendente de validação de vínculo funcional',
+      officialSector: group.officialSector || 'Não informado',
       scireDepartment: group.scire[0]?.department || 'Não informado',
-      comparison,
-      departmentCriterion: resolution.criterion,
-      contractualClassification: classification,
+      comparison: group.comparison,
+      departmentCriterion: group.departmentCriterion,
+      contractualClassification: group.classification,
       classificationType:
-        classification === 'Melhoria Evolutiva'
+        group.classification === 'Melhoria Evolutiva'
           ? 'Evolutiva'
-          : classification === 'Obrigação Contratual'
+          : group.classification === 'Obrigação Contratual'
             ? 'Corretiva/contínua'
-            : classification === 'Misto / Revisão Necessária'
+            : group.classification === 'Misto / Revisão Necessária'
               ? 'Misto'
-              : classification === 'Duplicidade'
+              : group.classification === 'Duplicidade'
                 ? 'Duplicidade'
                 : 'Pendente',
-      timeMinutes,
-      timeHours,
-      appliedHourlyRate: appliedRate,
-      billedValue,
-      technicalDueValue,
-      glosableValue,
-      simulatedValue,
-      confidenceLevel: confidence,
-      technicalBasis: technicalBasis || 'Sem base técnica suficiente',
-      contractualBasis: contractualBasis || 'Sem base contratual suficiente',
-      inconsistencies: inconsistencies || 'Nenhuma inconsistência relevante identificada',
-      recommendation,
+      timeMinutes: group.timeMinutes,
+      timeHours: group.timeHours,
+      appliedHourlyRate: group.appliedRate,
+      billedValue: group.billedValue,
+      technicalDueValue: group.technicalDueValue,
+      glosableValue: group.glosableValue,
+      simulatedValue: group.simulatedValue,
+      confidenceLevel: group.confidence,
+      technicalBasis: group.technicalBasis,
+      contractualBasis: group.contractualBasis,
+      inconsistencies: group.inconsistencies || 'Nenhuma inconsistência relevante identificada',
+      recommendation: group.recommendation,
       observations: compactParts([
         group.creci.length > 1 || group.scire.length > 1 ? 'Há múltiplos registros associados ao mesmo agrupamento.' : '',
         representative?.rawValues._planilha ? `Planilha de origem: ${String(representative.rawValues._planilha)}` : '',
         representative?.rawValues._origemSolicitacao ? `Origem informada: ${String(representative.rawValues._origemSolicitacao)}` : '',
       ]),
-      probableDepartment,
+      probableDepartment: group.probableDepartment,
+      moduleName: group.moduleName,
+      auditRuleIds: group.matchedRules.map((rule) => rule.ruleId),
+      auditSummary: group.matchedRules.length
+        ? group.matchedRules.map((rule) => `${rule.ruleType}:${rule.ruleId}`).join(' | ')
+        : 'Heurística residual aplicada.',
     };
   });
 
@@ -1452,6 +1753,18 @@ export function runAuditAnalysis(params: {
     byStatus: groupCount(rows, (row) => row.status),
     byConfidence: groupCount(rows, (row) => row.confidenceLevel),
     byClassification: groupCount(rows, (row) => row.contractualClassification),
+    pipelineSummary: {
+      normalizedUsers: userDirectory.length,
+      normalizedCreciTickets: creciTickets.length,
+      normalizedScireTickets: scireTickets.length,
+      matchedGroups: auditGroups.length,
+      duplicateGroups: auditGroups.filter((group) => group.classification === 'Duplicidade').length,
+      contractualRows: rows.filter((row) => row.contractualClassification === 'Obrigação Contratual').length,
+      improvementRows: rows.filter((row) => row.contractualClassification === 'Melhoria Evolutiva').length,
+      mixedRows: rows.filter((row) => row.contractualClassification === 'Misto / Revisão Necessária').length,
+      pendingRows: rows.filter((row) => row.contractualClassification === 'Pendente de Validação').length,
+      outOfScopeRows: rows.filter((row) => row.contractualClassification === 'Fora do Escopo Documental Disponível').length,
+    },
   };
 
   const reportSections = [
@@ -1566,6 +1879,7 @@ export function runAuditAnalysis(params: {
     pendingItems,
     divergenceItems,
     duplicateItems,
+    pipelineSummary: dashboard.pipelineSummary,
   };
 
   return {

@@ -20,6 +20,8 @@ export function ResultsTable({ rows }: ResultsTableProps) {
         row.summaryDescription,
         row.identifiedUser,
         row.officialDepartment,
+        row.moduleName,
+        row.auditSummary,
         row.recommendation,
       ]
         .join(' ')
@@ -40,12 +42,16 @@ export function ResultsTable({ rows }: ResultsTableProps) {
       <div className="panel-card__header">
         <div>
           <h2>Tabela analítica final</h2>
-          <p>Filtre os chamados por classificação, origem, confiança e conteúdo textual.</p>
+          <p>Filtre por classificação, origem, confiança, módulo e resumo das regras de auditoria aplicadas.</p>
         </div>
       </div>
 
       <div className="filters-grid">
-        <input placeholder="Buscar por código, título, usuário ou recomendação" value={search} onChange={(event) => setSearch(event.target.value)} />
+        <input
+          placeholder="Buscar por código, título, usuário, módulo ou regra"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
         <select value={classification} onChange={(event) => setClassification(event.target.value)}>
           {['Todos', ...new Set(rows.map((row) => row.contractualClassification))].map((item) => (
             <option key={item} value={item}>
@@ -75,10 +81,12 @@ export function ResultsTable({ rows }: ResultsTableProps) {
             <tr>
               <th>Código</th>
               <th>Título</th>
+              <th>Módulo</th>
               <th>Origem</th>
               <th>Departamento oficial</th>
               <th>Comparação</th>
               <th>Classificação</th>
+              <th>Regras</th>
               <th>Tempo (h)</th>
               <th>Cobrado</th>
               <th>Devido</th>
@@ -93,10 +101,12 @@ export function ResultsTable({ rows }: ResultsTableProps) {
               <tr key={row.id}>
                 <td>{row.callCode}</td>
                 <td title={row.summaryDescription}>{truncate(row.title, 64)}</td>
+                <td>{row.moduleName}</td>
                 <td>{row.demandOrigin}</td>
                 <td>{row.officialDepartment}</td>
                 <td>{row.comparison}</td>
                 <td>{row.contractualClassification}</td>
+                <td title={row.auditSummary}>{truncate(row.auditSummary, 70)}</td>
                 <td>{formatNumber(row.timeHours)}</td>
                 <td>{formatCurrency(row.billedValue)}</td>
                 <td>{formatCurrency(row.technicalDueValue)}</td>

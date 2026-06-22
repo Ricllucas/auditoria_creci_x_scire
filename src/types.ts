@@ -174,6 +174,9 @@ export interface AnalysisRow {
   recommendation: string;
   observations: string;
   probableDepartment: string;
+  moduleName: string;
+  auditRuleIds: string[];
+  auditSummary: string;
 }
 
 export interface DashboardMetrics {
@@ -202,6 +205,7 @@ export interface DashboardMetrics {
   byStatus: Array<{ name: string; total: number }>;
   byConfidence: Array<{ name: string; total: number }>;
   byClassification: Array<{ name: string; total: number }>;
+  pipelineSummary?: AuditPipelineSummary;
 }
 
 export interface ReportSection {
@@ -286,6 +290,19 @@ export interface UnifiedTechnicalReportModel {
   conclusionParagraphs: string[];
 }
 
+export interface AuditPipelineSummary {
+  normalizedUsers: number;
+  normalizedCreciTickets: number;
+  normalizedScireTickets: number;
+  matchedGroups: number;
+  duplicateGroups: number;
+  contractualRows: number;
+  improvementRows: number;
+  mixedRows: number;
+  pendingRows: number;
+  outOfScopeRows: number;
+}
+
 export interface AnalysisResult {
   generatedAt: string;
   settings: AnalysisSettings;
@@ -304,6 +321,7 @@ export interface AnalysisResult {
   divergenceItems: AnalysisRow[];
   duplicateItems: AnalysisRow[];
   unifiedReport?: UnifiedTechnicalReportModel;
+  pipelineSummary?: AuditPipelineSummary;
 }
 
 export interface AppUser {

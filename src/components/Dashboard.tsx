@@ -20,6 +20,8 @@ interface DashboardProps {
 const COLORS = ['#1f4b99', '#3b7f4f', '#b8791c', '#8b3d3d', '#6c57b3', '#16738b'];
 
 export function Dashboard({ metrics }: DashboardProps) {
+  const pipeline = metrics.pipelineSummary;
+
   const cards = [
     ['Total de chamados analisados', String(metrics.totalDemands)],
     ['Chamados da SCIRE', String(metrics.scireDemands)],
@@ -47,6 +49,27 @@ export function Dashboard({ metrics }: DashboardProps) {
           <p>Indicadores executivos, distribuição por classificação e volumetria por área.</p>
         </div>
       </div>
+
+      {pipeline ? (
+        <div className="metrics-grid">
+          <article className="metric-card">
+            <span>Pipeline • usuários normalizados</span>
+            <strong>{pipeline.normalizedUsers}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Pipeline • chamados CRECI normalizados</span>
+            <strong>{pipeline.normalizedCreciTickets}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Pipeline • chamados SCIRE normalizados</span>
+            <strong>{pipeline.normalizedScireTickets}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Pipeline • grupos confrontados</span>
+            <strong>{pipeline.matchedGroups}</strong>
+          </article>
+        </div>
+      ) : null}
 
       <div className="metrics-grid">
         {cards.map(([label, value]) => (
